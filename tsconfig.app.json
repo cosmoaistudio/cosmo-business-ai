@@ -8,6 +8,11 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
 
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
     "types": ["vite/client"],
 
     "allowArbitraryExtensions": true,
@@ -17,14 +22,9 @@
     "moduleDetection": "force",
 
     "noEmit": true,
-
     "jsx": "react-jsx",
 
-    "baseUrl": ".",
-
-    "paths": {
-      "@/*": ["src/*"]
-    },
+    "strict": true,
 
     "skipLibCheck": true,
 
@@ -34,5 +34,7 @@
     "noFallthroughCasesInSwitch": true
   },
 
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }
