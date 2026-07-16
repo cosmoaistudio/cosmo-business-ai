@@ -7,39 +7,46 @@ import {
   Settings,
 } from "lucide-react";
 
+import { NavLink } from "react-router-dom";
+
 import Logo from "./Logo";
 
 const menu = [
   {
     icon: LayoutDashboard,
     label: "Dashboard",
-    active: true,
+    path: "/",
   },
   {
     icon: Package,
     label: "Produtos",
+    path: "/produtos",
   },
   {
     icon: ShoppingCart,
     label: "Pedidos",
+    path: "/pedidos",
   },
   {
     icon: Users,
     label: "Clientes",
+    path: "/clientes",
   },
   {
     icon: Bot,
     label: "Cosmo AI",
+    path: "/ia",
   },
   {
     icon: Settings,
     label: "Configurações",
+    path: "/configuracoes",
   },
 ];
 
 export default function Sidebar() {
   return (
-    <aside className="flex h-screen w-72 flex-col bg-slate-950 border-r border-slate-800">
+    <aside className="flex h-screen w-72 flex-col border-r border-slate-800 bg-slate-950">
 
       <div className="p-6">
         <Logo />
@@ -53,17 +60,16 @@ export default function Sidebar() {
 
           return (
 
-            <button
+            <NavLink
               key={item.label}
-              className={`group mb-2 flex w-full items-center gap-4 rounded-2xl px-4 py-3 transition-all duration-300
-
-              ${
-                item.active
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-700/30"
-                  : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              to={item.path}
+              className={({ isActive }) =>
+                `group mb-2 flex w-full items-center gap-4 rounded-2xl px-4 py-3 transition-all duration-300 ${
+                  isActive
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-700/30"
+                    : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                }`
               }
-
-              `}
             >
 
               <Icon
@@ -75,7 +81,7 @@ export default function Sidebar() {
                 {item.label}
               </span>
 
-            </button>
+            </NavLink>
 
           );
 
@@ -88,16 +94,11 @@ export default function Sidebar() {
         <div className="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 p-5">
 
           <p className="text-sm font-semibold text-white">
-
             🚀 Upgrade PRO
-
           </p>
 
           <p className="mt-2 text-xs text-slate-400">
-
-            Desbloqueie IA, Marketing,
-            Financeiro e muito mais.
-
+            Desbloqueie IA, Marketing, Financeiro e muito mais.
           </p>
 
         </div>

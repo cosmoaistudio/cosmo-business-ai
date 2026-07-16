@@ -1,18 +1,22 @@
-import Sidebar from "./components/layout/Sidebar";
-import Topbar from "./components/layout/Topbar";
-import Dashboard from "./pages/Dashboard";
+import { Toaster } from "sonner";
+
+import SplashScreen from "./components/splash/SplashScreen";
+import AppRoutes from "./routes/AppRoutes";
 
 function App() {
   return (
-    <div className="flex h-screen bg-slate-100">
-      <Sidebar />
+    <>
+      <SplashScreen>
+        <AppRoutes />
+      </SplashScreen>
 
-      <div className="flex flex-1 flex-col">
-        <Topbar />
-
-        <Dashboard />
-      </div>
-    </div>
+      <Toaster
+        position="top-right"
+        richColors
+        expand
+        closeButton
+      />
+    </>
   );
 }
 
