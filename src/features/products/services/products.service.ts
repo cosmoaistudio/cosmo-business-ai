@@ -1,21 +1,54 @@
-import type { Product } from "../types/product";
-
-const mockProducts: Product[] = [];
+import {
+  createProduct,
+  deleteProduct,
+  getProductById,
+  getProducts,
+  updateProduct,
+  type CreateProductDTO,
+} from "../repository/products.repository";
+import { emitAutomationEvent } from "@/lib/automation-events";
 
 export const productsService = {
-  getAll() {
-    return mockProducts;
+  async getAll() {
+    return await getProducts();
   },
 
-  create(product: Product) {
-    mockProducts.push(product);
+  async getById(id: string) {
+    return await getProductById(id);
   },
 
-  remove(id: string) {
-    const index = mockProducts.findIndex((p) => p.id === id);
+  async create(product: CreateProductDTO) {
+    return await createProduct(product);
+  },
 
-    if (index >= 0) {
-      mockProducts.splice(index, 1);
+  async update(
+    id: string,
+    product: Partial<CreateProductDTO>
+  ) {
+    const previous =
+      product.status !== undefined ? await getProductById(id) : null;
+
+    const updated = await updateProduct(id, product);
+
+    if (previous && product.status && previous.status !== product.status) {
+      emitAutomationEvent(
+        product.status === "inactive" ? "PRODUCT_PAUSED" : "PRODUCT_ACTIVATED",
+        {
+          module: "products",
+          productId: id,
+          productName: updated.name,
+          status: updated.status,
+          stock: updated.stock,
+          entityId: id,
+          entityType: "product",
+        }
+      );
     }
+
+    return updated;
+  },
+
+  async remove(id: string) {
+    return await deleteProduct(id);
   },
 };

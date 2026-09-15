@@ -1,13 +1,61 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>cosmo-business-ai</title>
+    <title>Cosmo Business</title>
+    <style>
+      /* Instant shell — never show a bare empty window if Main reveals early */
+      html, body, #root {
+        margin: 0;
+        min-height: 100%;
+        height: 100%;
+        background: #020617;
+        color: #e2e8f0;
+        font-family: "Segoe UI", system-ui, sans-serif;
+      }
+      #cosmo-boot-shell {
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        background:
+          radial-gradient(ellipse 70% 55% at 50% 42%, rgba(59, 130, 246, 0.16) 0%, transparent 62%),
+          #020617;
+      }
+      #cosmo-boot-shell p {
+        margin: 0;
+        font-size: 0.8125rem;
+        letter-spacing: 0.06em;
+        color: rgba(148, 163, 184, 0.9);
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="cosmo-boot-shell" aria-busy="true">
+        <p>Preparando o universo...</p>
+      </div>
+    </div>
+    <!--
+      Classic sync script (not module): runs during HTML parse, BEFORE Vite/React.
+      MUST be synchronous — hidden BrowserWindows throttle rAF/timers heavily.
+      Boot shell is already in the DOM; auth/Supabase must not gate this.
+    -->
+    <script>
+      (function () {
+        try {
+          var api = window.cosmoDesktop;
+          if (api && typeof api.notifyVisualReady === "function") {
+            console.info("[Cosmo Renderer] visual-ready (boot-shell)");
+            api.notifyVisualReady();
+          }
+        } catch (_) {}
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

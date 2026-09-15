@@ -1,0 +1,107 @@
+.cosmo-hw {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cosmo-hw__nav {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+}
+
+.cosmo-hw__nav-btn {
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.03);
+  color: #94a3b8;
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cosmo-hw__nav-btn--active {
+  color: #dbeafe;
+  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(37, 99, 235, 0.2);
+}
+
+.cosmo-hw__panel {
+  border-radius: 1.125rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.55);
+  padding: 1.15rem 1.2rem;
+}
+
+.cosmo-hw__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.cosmo-hw__subtitle {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.cosmo-hw__desc {
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.cosmo-hw__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+.cosmo-hw__btn {
+  border-radius: 0.75rem;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  background: rgba(37, 99, 235, 0.22);
+  color: #dbeafe;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.cosmo-hw__btn--ghost {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: #cbd5e1;
+}
+
+.cosmo-hw__list {
+  margin-top: 0.5rem;
+  padding-left: 1.1rem;
+  color: #e2e8f0;
+  font-size: 0.85rem;
+}
+
+.cosmo-hw__row {
+  padding: 0.65rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cosmo-hw__msg {
+  font-size: 0.85rem;
+  color: #93c5fd;
+}
+
+.cosmo-hw__pre {
+  margin-top: 0.85rem;
+  max-height: 420px;
+  overflow: auto;
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  background: rgba(2, 6, 23, 0.45);
+  border-radius: 0.75rem;
+  padding: 0.85rem;
+}

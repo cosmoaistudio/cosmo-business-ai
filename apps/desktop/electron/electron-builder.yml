@@ -1,0 +1,65 @@
+appId: com.cosmo.business
+productName: Cosmo Business AI
+copyright: Copyright © Cosmo Business AI
+
+# RC1.8: Do not pack directly into release/desktop.
+# scripts/pack-desktop.mjs overrides this with an exclusive
+# release/tmp-electron/pack-<stamp>/ directory, then moves final
+# Setup/Portable artifacts into release/desktop. Avoids EBUSY on
+# win-unpacked.tmp when a previous Cosmo/Electron process locks files.
+directories:
+  output: release/tmp-electron/current
+  buildResources: apps/desktop/electron/assets
+
+# Avoid hard-failing pack when node-gyp/Python is unavailable for serialport.
+# Scale COM I/O still loads serialport at runtime when bindings are present.
+npmRebuild: false
+
+files:
+  - dist/**/*
+  - apps/desktop/electron/dist/**/*
+  - package.json
+
+asarUnpack:
+  - "**/node_modules/serialport/**/*"
+  - "**/node_modules/@serialport/**/*"
+
+extraMetadata:
+  main: apps/desktop/electron/dist/main/index.js
+  productName: Cosmo Business AI
+
+win:
+  icon: icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Cosmo Business AI
+  artifactName: Cosmo.Business.AI.Setup.${ext}
+
+portable:
+  artifactName: Cosmo.Business.AI.Portable.${ext}
+
+protocols:
+  - name: Cosmo Business AI
+    schemes:
+      - cosmobusiness
+
+# GitHub Releases (public). pack:desktop uses --publish never —
+# it only bakes app-update.yml. Do not put tokens here.
+publish:
+  provider: github
+  owner: cosmoaistudio
+  repo: cosmo-business-ai
+  releaseType: prerelease
+  private: false
+  vPrefixedTagName: true

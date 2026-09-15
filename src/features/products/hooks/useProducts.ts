@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import { getProducts } from "../repository/products.repository";
+import { toast } from "sonner";
+import { logger } from "@/lib/logger";
+import { onDataChanged } from "@/lib/sale-events";
+import { productsService } from "../services/products.service";
 import type { Product } from "../types/product";
 
 export function useProducts() {
@@ -9,10 +12,11 @@ export function useProducts() {
   const loadProducts = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await getProducts();
+      const data = await productsService.getAll();
       setProducts(data);
     } catch (error) {
-      console.error("Erro ao buscar produtos:", error);
+      logger.error("Erro ao buscar produtos:", error);
+      toast.error("Não foi possível carregar os produtos. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -20,6 +24,10 @@ export function useProducts() {
 
   useEffect(() => {
     loadProducts();
+  }, [loadProducts]);
+
+  useEffect(() => {
+    return onDataChanged(loadProducts);
   }, [loadProducts]);
 
   return {

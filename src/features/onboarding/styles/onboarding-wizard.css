@@ -1,0 +1,199 @@
+/**
+ * Onboarding Wizard — form contrast fix (visual layer only).
+ *
+ * Root cause: AppLayout dark theme sets light text (--cosmo-text / text-slate-100).
+ * The wizard card used bg-white while .cosmo-input did not set color/background,
+ * so typed text inherited light color on a light field → unreadable.
+ *
+ * Scoped to .onboarding-wizard — does not affect Dashboard or global inputs.
+ */
+
+.onboarding-wizard {
+  --onboarding-placeholder: var(--cosmo-text-muted, var(--cosmo-text-secondary));
+  color: var(--cosmo-text);
+  background: var(--cosmo-surface);
+  border-color: var(--cosmo-border);
+}
+
+/* Light-theme Tailwind leftovers inside the wizard → Design System tokens */
+.onboarding-wizard .bg-white {
+  background-color: var(--cosmo-surface) !important;
+}
+
+.onboarding-wizard .bg-slate-50,
+.onboarding-wizard .bg-slate-100,
+.onboarding-wizard .hover\:bg-slate-100:hover,
+.onboarding-wizard .hover\:bg-slate-200:hover {
+  background-color: var(--cosmo-bg-muted) !important;
+}
+
+.onboarding-wizard .border-slate-100,
+.onboarding-wizard .border-slate-200,
+.onboarding-wizard .border-slate-300,
+.onboarding-wizard .hover\:border-blue-400:hover {
+  border-color: var(--cosmo-border) !important;
+}
+
+.onboarding-wizard .text-slate-900,
+.onboarding-wizard .text-slate-800,
+.onboarding-wizard .text-slate-700,
+.onboarding-wizard .text-slate-600,
+.onboarding-wizard .hover\:text-slate-800:hover {
+  color: var(--cosmo-text) !important;
+}
+
+.onboarding-wizard .text-slate-500,
+.onboarding-wizard .text-slate-400 {
+  color: var(--onboarding-placeholder) !important;
+}
+
+.onboarding-wizard .hover\:bg-red-50:hover {
+  background-color: var(--cosmo-danger-muted, rgba(239, 68, 68, 0.12)) !important;
+}
+
+.onboarding-wizard .bg-blue-50 {
+  background-color: var(--cosmo-primary-muted, rgba(59, 130, 246, 0.12)) !important;
+}
+
+.onboarding-wizard .text-blue-800 {
+  color: var(--cosmo-text) !important;
+}
+
+.onboarding-wizard .bg-emerald-50 {
+  background-color: var(--cosmo-success-muted, rgba(16, 185, 129, 0.12)) !important;
+}
+
+.onboarding-wizard .bg-emerald-100 {
+  background-color: var(--cosmo-success-muted, rgba(16, 185, 129, 0.12)) !important;
+}
+
+.onboarding-wizard .text-emerald-700 {
+  color: var(--cosmo-success, #10b981) !important;
+}
+
+/* Labels & help copy */
+.onboarding-wizard label > span,
+.onboarding-wizard .onboarding-label {
+  color: var(--cosmo-text);
+}
+
+.onboarding-wizard .onboarding-help,
+.onboarding-wizard p.text-sm {
+  color: var(--onboarding-placeholder);
+}
+
+/* ---- Form controls (all steps) ---- */
+.onboarding-wizard input.cosmo-input,
+.onboarding-wizard select.cosmo-input,
+.onboarding-wizard textarea.cosmo-input,
+.onboarding-wizard input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):not([type="file"]):not([type="hidden"]):not([type="button"]):not([type="submit"]),
+.onboarding-wizard select,
+.onboarding-wizard textarea {
+  color: var(--cosmo-text) !important;
+  -webkit-text-fill-color: var(--cosmo-text);
+  caret-color: var(--cosmo-text);
+  background-color: var(--cosmo-bg-muted) !important;
+  border: 1px solid var(--cosmo-border) !important;
+  border-radius: var(--cosmo-radius-md, 0.75rem);
+  outline: none;
+}
+
+.onboarding-wizard input.cosmo-input::placeholder,
+.onboarding-wizard textarea.cosmo-input::placeholder,
+.onboarding-wizard input:not([type="checkbox"]):not([type="radio"]):not([type="color"])::placeholder,
+.onboarding-wizard textarea::placeholder {
+  color: var(--onboarding-placeholder) !important;
+  -webkit-text-fill-color: var(--onboarding-placeholder);
+  opacity: 1;
+}
+
+.onboarding-wizard input.cosmo-input:hover,
+.onboarding-wizard select.cosmo-input:hover,
+.onboarding-wizard textarea.cosmo-input:hover,
+.onboarding-wizard input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):hover,
+.onboarding-wizard select:hover,
+.onboarding-wizard textarea:hover {
+  border-color: var(--cosmo-border-strong, var(--cosmo-border)) !important;
+}
+
+.onboarding-wizard input.cosmo-input:focus,
+.onboarding-wizard input.cosmo-input:focus-visible,
+.onboarding-wizard select.cosmo-input:focus,
+.onboarding-wizard select.cosmo-input:focus-visible,
+.onboarding-wizard textarea.cosmo-input:focus,
+.onboarding-wizard textarea.cosmo-input:focus-visible,
+.onboarding-wizard input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):focus,
+.onboarding-wizard input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):focus-visible,
+.onboarding-wizard select:focus,
+.onboarding-wizard select:focus-visible,
+.onboarding-wizard textarea:focus,
+.onboarding-wizard textarea:focus-visible {
+  border-color: var(--cosmo-primary, #3b82f6) !important;
+  box-shadow:
+    0 0 0 3px var(--cosmo-primary-muted, rgba(59, 130, 246, 0.14)),
+    0 0 18px rgba(59, 130, 246, 0.12) !important;
+}
+
+.onboarding-wizard input.cosmo-input:disabled,
+.onboarding-wizard select.cosmo-input:disabled,
+.onboarding-wizard textarea.cosmo-input:disabled,
+.onboarding-wizard input:disabled,
+.onboarding-wizard select:disabled,
+.onboarding-wizard textarea:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  color: var(--cosmo-text-secondary, var(--onboarding-placeholder)) !important;
+  -webkit-text-fill-color: var(--cosmo-text-secondary, var(--onboarding-placeholder));
+  background-color: var(--cosmo-bg-muted) !important;
+}
+
+.onboarding-wizard input.cosmo-input[aria-invalid="true"],
+.onboarding-wizard select.cosmo-input[aria-invalid="true"],
+.onboarding-wizard textarea.cosmo-input[aria-invalid="true"] {
+  border-color: var(--cosmo-danger, #ef4444) !important;
+}
+
+.onboarding-wizard input.cosmo-input[data-state="success"],
+.onboarding-wizard select.cosmo-input[data-state="success"] {
+  border-color: var(--cosmo-success, #10b981) !important;
+}
+
+/* Select options (Chromium / Electron) */
+.onboarding-wizard select option {
+  background-color: var(--cosmo-surface);
+  color: var(--cosmo-text);
+}
+
+/* Checkboxes / radios — keep native control, ensure adjacent label is readable */
+.onboarding-wizard input[type="checkbox"],
+.onboarding-wizard input[type="radio"] {
+  accent-color: var(--cosmo-primary, #3b82f6);
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+/* Color picker chrome */
+.onboarding-wizard input[type="color"] {
+  background-color: var(--cosmo-bg-muted);
+  border: 1px solid var(--cosmo-border);
+}
+
+/* Chromium / Electron autofill override */
+.onboarding-wizard input:-webkit-autofill,
+.onboarding-wizard input:-webkit-autofill:hover,
+.onboarding-wizard input:-webkit-autofill:focus,
+.onboarding-wizard textarea:-webkit-autofill,
+.onboarding-wizard select:-webkit-autofill {
+  -webkit-text-fill-color: var(--cosmo-text) !important;
+  caret-color: var(--cosmo-text);
+  box-shadow: 0 0 0 1000px var(--cosmo-bg-muted) inset !important;
+  border: 1px solid var(--cosmo-border) !important;
+  transition: background-color 99999s ease-out 0s;
+}
+
+/* Progress step idle chips (keep current/complete accents) */
+.onboarding-wizard .bg-slate-100.text-slate-500 {
+  background-color: var(--cosmo-bg-muted) !important;
+  color: var(--onboarding-placeholder) !important;
+}

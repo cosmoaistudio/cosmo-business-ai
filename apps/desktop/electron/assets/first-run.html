@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cosmo Business — Primeira execução</title>
+    <style>
+      :root { color-scheme: dark; font-family: "Segoe UI", system-ui, sans-serif; }
+      body { margin: 0; background: #0b1220; color: #e2e8f0; }
+      .wrap { padding: 24px; max-width: 680px; margin: 0 auto; }
+      h1 { font-size: 1.35rem; margin: 0 0 6px; }
+      p { color: #94a3b8; font-size: 0.9rem; }
+      .steps { display: flex; gap: 8px; margin: 16px 0; }
+      .step { flex: 1; text-align: center; padding: 8px; border-radius: 999px; background: #111827; font-size: 0.75rem; font-weight: 700; color: #64748b; }
+      .step.active { background: #1d4ed8; color: #dbeafe; }
+      label { display: block; font-size: 0.8rem; margin-top: 12px; color: #cbd5e1; }
+      input, select, textarea {
+        width: 100%; margin-top: 4px; box-sizing: border-box;
+        border-radius: 10px; border: 1px solid #334155; background: #020617;
+        color: #f8fafc; padding: 10px 12px;
+      }
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+      button {
+        border: 0; border-radius: 10px; padding: 10px 14px; font-weight: 700; cursor: pointer;
+      }
+      .primary { background: #2563eb; color: white; }
+      .ghost { background: #1e293b; color: #e2e8f0; }
+      .card { margin-top: 12px; padding: 12px; border-radius: 12px; background: #111827; border: 1px solid #1f2937; font-size: 0.85rem; }
+      .hidden { display: none; }
+      ul { margin: 8px 0 0; padding-left: 18px; color: #cbd5e1; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Bem-vindo ao Cosmo Business</h1>
+      <p>Wizard de primeira execução · RC1</p>
+      <div class="steps">
+        <div class="step active" id="s1">1. Empresa</div>
+        <div class="step" id="s2">2. Negócio</div>
+        <div class="step" id="s3">3. Hardware</div>
+      </div>
+
+      <section id="step1">
+        <label>Nome da empresa <input id="name" placeholder="Minha Loja" /></label>
+        <div class="row">
+          <label>Telefone <input id="phone" placeholder="(11) 99999-9999" /></label>
+          <label>CNPJ <input id="cnpj" placeholder="00.000.000/0000-00" /></label>
+        </div>
+        <label>Endereço <input id="address" placeholder="Rua, número, cidade" /></label>
+        <label>Logo (URL ou caminho local opcional) <input id="logo" placeholder="https://… ou C:\\…\\logo.png" /></label>
+      </section>
+
+      <section id="step2" class="hidden">
+        <label>Tipo de negócio
+          <select id="businessType">
+            <option value="acai">Açaí</option>
+            <option value="restaurante">Restaurante</option>
+            <option value="pizzaria">Pizzaria</option>
+            <option value="hamburgueria">Hamburgueria</option>
+            <option value="padaria">Padaria</option>
+            <option value="sorveteria">Sorveteria</option>
+            <option value="cafeteria">Cafeteria</option>
+            <option value="outro">Outro</option>
+          </select>
+        </label>
+      </section>
+
+      <section id="step3" class="hidden">
+        <p>Detecção automática via Windows / Desktop Agent (sem inventar protocolos).</p>
+        <button class="ghost" type="button" id="detectBtn">Detectar hardware</button>
+        <div class="card" id="detectOut">Clique em detectar para listar impressoras, COM e drivers de balança suportados.</div>
+      </section>
+
+      <div class="actions">
+        <button class="ghost" type="button" id="backBtn">Voltar</button>
+        <button class="primary" type="button" id="nextBtn">Continuar</button>
+        <button class="ghost" type="button" id="skipBtn">Pular wizard</button>
+      </div>
+    </div>
+    <script>
+      let step = 1;
+      const api = window.cosmoFirstRun;
+      const els = {
+        step1: document.getElementById("step1"),
+        step2: document.getElementById("step2"),
+        step3: document.getElementById("step3"),
+        s1: document.getElementById("s1"),
+        s2: document.getElementById("s2"),
+        s3: document.getElementById("s3"),
+      };
+
+      function render() {
+        els.step1.classList.toggle("hidden", step !== 1);
+        els.step2.classList.toggle("hidden", step !== 2);
+        els.step3.classList.toggle("hidden", step !== 3);
+        els.s1.classList.toggle("active", step === 1);
+        els.s2.classList.toggle("active", step === 2);
+        els.s3.classList.toggle("active", step === 3);
+        document.getElementById("nextBtn").textContent = step === 3 ? "Concluir" : "Continuar";
+      }
+
+      document.getElementById("backBtn").onclick = () => {
+        step = Math.max(1, step - 1);
+        render();
+      };
+
+      document.getElementById("nextBtn").onclick = async () => {
+        if (step < 3) {
+          step += 1;
+          render();
+          return;
+        }
+        await api.complete({
+          company: {
+            name: document.getElementById("name").value.trim(),
+            phone: document.getElementById("phone").value.trim(),
+            address: document.getElementById("address").value.trim(),
+            cnpj: document.getElementById("cnpj").value.trim(),
+            logoDataUrl: document.getElementById("logo").value.trim() || undefined,
+          },
+          businessType: document.getElementById("businessType").value,
+        });
+      };
+
+      document.getElementById("skipBtn").onclick = async () => {
+        await api.complete({
+          skip: true,
+          company: { name: "", phone: "", address: "", cnpj: "" },
+          businessType: "outro",
+        });
+      };
+
+      document.getElementById("detectBtn").onclick = async () => {
+        const out = document.getElementById("detectOut");
+        out.textContent = "Detectando…";
+        try {
+          const data = await api.detectHardware();
+          const printers = (data.printers || []).map((p) => p.name + (p.isDefault ? " (padrão)" : "")).join(", ") || "Nenhuma";
+          const ports = (data.ports || []).map((p) => p.path).join(", ") || "Nenhuma";
+          const scales = (data.scales || [])
+            .map((s) => s.label + (s.protocolImplemented ? " ✓" : " (docs pendentes)"))
+            .join(", ");
+          out.innerHTML =
+            "<strong>Impressoras</strong><ul><li>" + printers + "</li></ul>" +
+            "<strong>Portas COM</strong><ul><li>" + ports + "</li></ul>" +
+            "<strong>Balanças (drivers)</strong><ul><li>" + scales + "</li></ul>" +
+            "<p>Desktop Agent: processo principal Electron responsável por hardware.</p>";
+        } catch (e) {
+          out.textContent = String(e && e.message ? e.message : e);
+        }
+      };
+
+      render();
+    </script>
+  </body>
+</html>

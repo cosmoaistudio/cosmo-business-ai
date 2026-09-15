@@ -7,20 +7,73 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
+# Environment / secrets
 .env
+.env.*
+!.env.example
+!.env.desktop.example
 
-# Editor directories and files
+# Dependencies
+node_modules/
+
+# Build
+dist/
+dist-ssr/
+release/
+
+# Test / coverage
+coverage/
+
+# Local temporary files
+tmp/
+tmp-*/
+*.tmp
+
+# Vite / local caches
+.vite/
+.vite-temp/
+
+# Editor / OS
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# Local certificates / keys
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Legacy local patterns
+*.local
+
+# Expo build output
+.expo/
+.expo-web-export/
+*.expo-web-export/
+
+# Defensive secret protection
+.env.backup
+.env.bak
+secrets/
+credentials/
+*.credentials.json
+*.crt
+*.cer
+*.jks
+*.keystore
+*.mobileprovision
+id_rsa
+id_rsa.pub
+
+# Tooling caches
+.supabase/
+.turbo/
+.cache/

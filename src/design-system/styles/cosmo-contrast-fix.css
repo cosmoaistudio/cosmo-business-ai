@@ -1,0 +1,196 @@
+/**
+ * Cosmo RC1 — structural contrast fix for dark AppLayout + legacy light shells.
+ *
+ * Root cause:
+ * AppLayout sets data-theme="dark" and text-slate-100 / --cosmo-text (light).
+ * Many feature pages still use bg-white / border-slate-* / .cosmo-card (light
+ * shells) while leaving primary cells without a text-* class → light-on-light.
+ *
+ * Scope:
+ * - Only under [data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface
+ * - Does NOT affect PDV (PdvLayout) or intentional dark-glass utilities
+ *   (bg-white/5, bg-white/[0.03], etc.)
+ *
+ * Visual/theme layer only — no business logic.
+ */
+
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface {
+  --cosmo-contrast-placeholder: var(--cosmo-text-muted, var(--cosmo-text-secondary));
+}
+
+/*
+ * Legacy fixed overlays that still use bg-white (belt-and-suspenders).
+ * Preferred path: AppModal (.cosmo-modal). PDV is outside this selector tree.
+ */
+[data-cosmo-ds="v2"][data-theme="dark"] .fixed.inset-0 > .bg-white {
+  background: var(--cosmo-surface) !important;
+  color: var(--cosmo-text) !important;
+  border-color: var(--cosmo-border) !important;
+}
+
+/* Legacy light cards → Design System surface */
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .bg-white,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .cosmo-card {
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--cosmo-surface) 92%, #fff 8%) 0%,
+      var(--cosmo-surface) 100%
+    ) !important;
+  color: var(--cosmo-text);
+  border-color: var(--cosmo-border) !important;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.24),
+    0 12px 32px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .cosmo-card:hover {
+  border-color: color-mix(in srgb, var(--cosmo-primary) 35%, var(--cosmo-border)) !important;
+}
+
+/* Soft fills used as table headers / row hover / chips */
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .bg-slate-50,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .bg-slate-100,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .bg-gray-50,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .bg-gray-100,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .bg-zinc-50,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .hover\:bg-slate-50:hover,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .hover\:bg-slate-100:hover,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .hover\:bg-slate-200:hover {
+  background-color: var(--cosmo-bg-muted) !important;
+}
+
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .border-slate-100,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .border-slate-200,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .border-slate-300,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .border-gray-200,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .border-zinc-200,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--cosmo-border) !important;
+}
+
+/* Hardcoded dark slate text on (now dark) panels → readable primary/muted */
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .text-slate-900,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .text-slate-800,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .text-slate-700,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .text-gray-900,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .text-gray-800,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .text-gray-700,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .text-zinc-900,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .text-zinc-800,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .hover\:text-slate-800:hover,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .hover\:text-slate-700:hover {
+  color: var(--cosmo-text) !important;
+}
+
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .text-slate-600,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .text-slate-500,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .text-slate-400,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .text-gray-600,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .text-gray-500,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .text-zinc-500,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .text-zinc-400 {
+  color: var(--cosmo-contrast-placeholder) !important;
+}
+
+/* Soft accent chips that assumed white paper */
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .bg-blue-50 {
+  background-color: var(--cosmo-primary-muted, rgba(59, 130, 246, 0.12)) !important;
+}
+
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .hover\:bg-blue-50:hover {
+  background-color: var(--cosmo-primary-muted, rgba(59, 130, 246, 0.16)) !important;
+}
+
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .hover\:bg-red-50:hover {
+  background-color: var(--cosmo-danger-muted, rgba(239, 68, 68, 0.12)) !important;
+}
+
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .bg-emerald-50,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface .bg-emerald-100 {
+  background-color: var(--cosmo-success-muted, rgba(16, 185, 129, 0.12)) !important;
+}
+
+/* Tables: ensure bare cells inherit readable text */
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface table {
+  color: var(--cosmo-text);
+}
+
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface thead th {
+  color: var(--cosmo-contrast-placeholder);
+  font-weight: 600;
+}
+
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface tbody td {
+  color: var(--cosmo-text);
+}
+
+/* Form controls inside legacy light shells (search, filters, modals, forms) */
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface input.cosmo-input,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface select.cosmo-input,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface textarea.cosmo-input,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface [data-slot="input"],
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):not([type="file"]):not([type="hidden"]):not([type="button"]):not([type="submit"]),
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface select,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface textarea {
+  color: var(--cosmo-text) !important;
+  -webkit-text-fill-color: var(--cosmo-text);
+  caret-color: var(--cosmo-text);
+  background-color: var(--cosmo-bg-muted) !important;
+  border-color: var(--cosmo-border) !important;
+}
+
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface input::placeholder,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface textarea::placeholder,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface [data-slot="input"]::placeholder {
+  color: var(--cosmo-contrast-placeholder) !important;
+  -webkit-text-fill-color: var(--cosmo-contrast-placeholder);
+  opacity: 1;
+}
+
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface input:focus,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface input:focus-visible,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface select:focus,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface select:focus-visible,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface textarea:focus,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface textarea:focus-visible,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface [data-slot="input"]:focus,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface [data-slot="input"]:focus-visible {
+  border-color: var(--cosmo-primary, #3b82f6) !important;
+  box-shadow:
+    0 0 0 3px var(--cosmo-primary-muted, rgba(59, 130, 246, 0.14)),
+    0 0 18px rgba(59, 130, 246, 0.12);
+}
+
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface input:disabled,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface select:disabled,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface textarea:disabled,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface [data-slot="input"]:disabled {
+  opacity: 0.55;
+  color: var(--cosmo-contrast-placeholder) !important;
+  -webkit-text-fill-color: var(--cosmo-contrast-placeholder);
+}
+
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface select option {
+  background-color: var(--cosmo-surface);
+  color: var(--cosmo-text);
+}
+
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface input[type="checkbox"],
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface input[type="radio"] {
+  accent-color: var(--cosmo-primary, #3b82f6);
+}
+
+/* Chromium / Electron autofill */
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface input:-webkit-autofill,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface input:-webkit-autofill:hover,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface input:-webkit-autofill:focus,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface textarea:-webkit-autofill,
+[data-cosmo-ds="v2"][data-theme="dark"] .cosmo-main-surface select:-webkit-autofill {
+  -webkit-text-fill-color: var(--cosmo-text) !important;
+  caret-color: var(--cosmo-text);
+  box-shadow: 0 0 0 1000px var(--cosmo-bg-muted) inset !important;
+  border-color: var(--cosmo-border) !important;
+  transition: background-color 99999s ease-out 0s;
+}

@@ -1,0 +1,7 @@
+{
+  "provider": "github",
+  "owner": "cosmoaistudio",
+  "repo": "cosmo-business-ai",
+  "releaseType": "prerelease",
+  "private": false
+}

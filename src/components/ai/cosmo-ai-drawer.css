@@ -1,0 +1,467 @@
+/* Cosmo AI Drawer V3 — assistente lateral (não bloqueia a Dashboard) */
+
+.cosmo-ai-drawer {
+  --cosmo-ai-blue: #3b82f6;
+  --cosmo-ai-blue-deep: #2563eb;
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  width: 380px;
+  max-width: min(380px, 100vw);
+  height: 100vh;
+  height: 100dvh;
+  pointer-events: auto;
+  border-left: 1px solid rgba(59, 130, 246, 0.28);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(10, 22, 48, 0.97) 0%,
+      rgba(8, 14, 28, 0.985) 45%,
+      rgba(2, 6, 23, 0.99) 100%
+    );
+  box-shadow:
+    -16px 0 40px rgba(0, 0, 0, 0.28),
+    inset 1px 0 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+}
+
+.cosmo-ai-drawer__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.85rem;
+  padding: 1.1rem 1.1rem 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cosmo-ai-drawer__brand-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #f8fafc;
+}
+
+.cosmo-ai-drawer__brand-title svg {
+  color: #60a5fa;
+}
+
+.cosmo-ai-drawer__brand-sub {
+  margin-top: 0.2rem;
+  font-size: 0.8125rem;
+  color: #94a3b8;
+}
+
+.cosmo-ai-drawer__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.75rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 0.75rem;
+  color: #cbd5e1;
+}
+
+.cosmo-ai-drawer__status strong {
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.cosmo-ai-drawer__status--good strong { color: #34d399; }
+.cosmo-ai-drawer__status--warn strong { color: #fbbf24; }
+.cosmo-ai-drawer__status--bad strong { color: #f87171; }
+
+.cosmo-ai-drawer__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border-radius: 0.625rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: #cbd5e1;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.cosmo-ai-drawer__close:hover {
+  transform: scale(1.04);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.cosmo-ai-drawer__tabs {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.65rem 0.8rem;
+  overflow-x: auto;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  scrollbar-width: none;
+}
+
+.cosmo-ai-drawer__tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.cosmo-ai-drawer__tab {
+  flex: 0 0 auto;
+  height: 1.9rem;
+  padding: 0 0.65rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    color 0.16s ease,
+    background 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.cosmo-ai-drawer__tab:hover {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.cosmo-ai-drawer__tab--active {
+  color: #dbeafe;
+  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(37, 99, 235, 0.2);
+}
+
+.cosmo-ai-drawer__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.1rem 5.75rem;
+}
+
+.cosmo-ai-drawer__brief {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #f1f5f9;
+  letter-spacing: -0.01em;
+}
+
+.cosmo-ai-drawer__brief-label {
+  margin-bottom: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #60a5fa;
+}
+
+.cosmo-ai-drawer__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.cosmo-ai-drawer__finding {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  padding: 0.85rem 0.9rem;
+  border-radius: 0.875rem;
+  border: 1px solid rgba(59, 130, 246, 0.16);
+  background: rgba(37, 99, 235, 0.08);
+  transition:
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.cosmo-ai-drawer__finding:hover {
+  transform: translateY(-2px);
+  border-color: rgba(96, 165, 250, 0.35);
+  box-shadow: 0 10px 28px rgba(37, 99, 235, 0.16);
+}
+
+.cosmo-ai-drawer__finding-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 0.1rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #93c5fd;
+  background: rgba(37, 99, 235, 0.22);
+}
+
+.cosmo-ai-drawer__finding-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.cosmo-ai-drawer__finding-msg {
+  margin-top: 0.25rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #94a3b8;
+}
+
+.cosmo-ai-drawer__finding-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.7rem;
+}
+
+.cosmo-ai-drawer__finding-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  height: 1.75rem;
+  padding: 0 0.55rem;
+  border-radius: 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 550;
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.cosmo-ai-drawer__finding-actions button:hover {
+  transform: scale(1.03);
+  background: rgba(37, 99, 235, 0.18);
+  border-color: rgba(96, 165, 250, 0.35);
+}
+
+.cosmo-ai-drawer__finding-actions button:first-child {
+  color: #fff;
+  border-color: rgba(52, 211, 153, 0.35);
+  background: rgba(16, 185, 129, 0.18);
+}
+
+.cosmo-ai-drawer__empty {
+  padding: 1rem;
+  border-radius: 0.875rem;
+  border: 1px dashed rgba(59, 130, 246, 0.28);
+  font-size: 0.8125rem;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.cosmo-ai-drawer__history {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.cosmo-ai-drawer__history-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.7rem;
+}
+
+.cosmo-ai-drawer__history-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-top: 0.35rem;
+  border-radius: 999px;
+  background: var(--cosmo-ai-blue);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+.cosmo-ai-drawer__history-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.cosmo-ai-drawer__history-msg {
+  margin-top: 0.15rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.cosmo-ai-drawer__history-time {
+  margin-top: 0.25rem;
+  font-size: 0.68rem;
+  color: #64748b;
+}
+
+/* FAB 56×56 Cosmo blue — expands on hover */
+.cosmo-ai-drawer__fab {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 80;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0;
+  width: 56px;
+  height: 56px;
+  padding: 0 0 0 0;
+  overflow: hidden;
+  border-radius: 999px;
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  background: linear-gradient(145deg, #3b82f6 0%, #2563eb 55%, #1d4ed8 100%);
+  color: #fff;
+  cursor: pointer;
+  box-shadow:
+    0 10px 28px rgba(37, 99, 235, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transition:
+    width 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    padding 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    gap 0.3s ease,
+    box-shadow 0.22s ease;
+}
+
+.cosmo-ai-drawer__fab:hover,
+.cosmo-ai-drawer__fab--open {
+  width: 180px;
+  gap: 0.55rem;
+  padding: 0 0.95rem 0 0.85rem;
+  box-shadow:
+    0 14px 36px rgba(37, 99, 235, 0.42),
+    0 0 20px rgba(59, 130, 246, 0.22);
+}
+
+.cosmo-ai-drawer__fab--open {
+  box-shadow:
+    0 12px 32px rgba(37, 99, 235, 0.4),
+    0 0 0 2px rgba(147, 197, 253, 0.35);
+}
+
+.cosmo-ai-drawer__fab-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.cosmo-ai-drawer__fab:hover .cosmo-ai-drawer__fab-icon,
+.cosmo-ai-drawer__fab--open .cosmo-ai-drawer__fab-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.cosmo-ai-drawer__fab-badge {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.4rem;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.28rem;
+  border-radius: 999px;
+  background: #f43f5e;
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1.1rem;
+  text-align: center;
+  box-shadow: 0 0 0 2px #1d4ed8;
+}
+
+.cosmo-ai-drawer__fab:hover .cosmo-ai-drawer__fab-badge,
+.cosmo-ai-drawer__fab--open .cosmo-ai-drawer__fab-badge {
+  top: -0.45rem;
+  right: -0.55rem;
+}
+
+.cosmo-ai-drawer__fab-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: left;
+  transition:
+    max-width 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.2s ease;
+}
+
+.cosmo-ai-drawer__fab:hover .cosmo-ai-drawer__fab-copy,
+.cosmo-ai-drawer__fab--open .cosmo-ai-drawer__fab-copy {
+  max-width: 8rem;
+  opacity: 1;
+}
+
+.cosmo-ai-drawer__fab-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.cosmo-ai-drawer__fab-sub {
+  margin-top: 0.05rem;
+  font-size: 0.65rem;
+  font-weight: 500;
+  line-height: 1.2;
+  opacity: 0.88;
+}
+
+@media (max-width: 900px) {
+  .cosmo-ai-drawer {
+    width: min(380px, 92vw);
+  }
+}
+
+@media (max-width: 640px) {
+  .cosmo-ai-drawer {
+    width: min(100vw, 100%);
+    max-width: 100vw;
+  }
+
+  .cosmo-ai-drawer__fab {
+    right: 1rem;
+    bottom: 1rem;
+  }
+
+  .cosmo-ai-drawer__fab:hover,
+  .cosmo-ai-drawer__fab--open {
+    width: 168px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cosmo-ai-drawer__finding,
+  .cosmo-ai-drawer__close,
+  .cosmo-ai-drawer__tab,
+  .cosmo-ai-drawer__fab,
+  .cosmo-ai-drawer__fab-copy,
+  .cosmo-ai-drawer__finding-actions button {
+    transition: none !important;
+  }
+}

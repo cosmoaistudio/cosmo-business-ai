@@ -1,0 +1,219 @@
+/**
+ * Cosmo RC1 — shared modal / dialog contrast + layout.
+ * Uses Design System tokens. Safe for dark AppLayout.
+ */
+
+.cosmo-modal {
+  --cosmo-contrast-placeholder: var(--cosmo-text-muted, var(--cosmo-text-secondary));
+  background: var(--cosmo-surface, #111827);
+  color: var(--cosmo-text, #f9fafb);
+  border: 1px solid var(--cosmo-border, rgba(255, 255, 255, 0.1));
+}
+
+.cosmo-modal__header,
+.cosmo-modal__footer {
+  border-color: var(--cosmo-border, rgba(255, 255, 255, 0.1));
+  background: color-mix(in srgb, var(--cosmo-surface, #111827) 92%, #000 8%);
+}
+
+.cosmo-modal__title {
+  color: var(--cosmo-text, #f9fafb);
+}
+
+.cosmo-modal__close {
+  color: var(--cosmo-text-muted, var(--cosmo-text-secondary, #94a3b8));
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.cosmo-modal__close:hover {
+  background: var(--cosmo-bg-muted, #1f2937);
+  color: var(--cosmo-text, #f9fafb);
+}
+
+.cosmo-modal__body {
+  color: var(--cosmo-text, #f9fafb);
+}
+
+/* Sticky action row when forms keep Cancel/Save inside the body */
+.cosmo-modal__body .cosmo-modal-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    var(--cosmo-surface, #111827) 28%
+  );
+}
+
+@media (min-width: 640px) {
+  .cosmo-modal__body .cosmo-modal-actions {
+    flex-direction: row;
+  }
+}
+
+.cosmo-modal__footer .cosmo-modal-actions {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+@media (min-width: 640px) {
+  .cosmo-modal__footer .cosmo-modal-actions {
+    flex-direction: row;
+  }
+}
+
+/* Form controls inside modals */
+.cosmo-modal input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]):not([type="hidden"]):not([type="button"]):not([type="submit"]),
+.cosmo-modal select,
+.cosmo-modal textarea,
+.cosmo-modal .cosmo-input,
+.cosmo-modal [data-slot="input"] {
+  color: var(--cosmo-text, #f9fafb) !important;
+  -webkit-text-fill-color: var(--cosmo-text, #f9fafb);
+  caret-color: var(--cosmo-text, #f9fafb);
+  background-color: var(--cosmo-bg-muted, #1f2937) !important;
+  border: 1px solid var(--cosmo-border, rgba(255, 255, 255, 0.1)) !important;
+  border-radius: 0.75rem;
+}
+
+.cosmo-modal input::placeholder,
+.cosmo-modal textarea::placeholder,
+.cosmo-modal [data-slot="input"]::placeholder {
+  color: var(--cosmo-contrast-placeholder) !important;
+  -webkit-text-fill-color: var(--cosmo-contrast-placeholder);
+  opacity: 1;
+}
+
+.cosmo-modal input:focus,
+.cosmo-modal input:focus-visible,
+.cosmo-modal select:focus,
+.cosmo-modal select:focus-visible,
+.cosmo-modal textarea:focus,
+.cosmo-modal textarea:focus-visible,
+.cosmo-modal [data-slot="input"]:focus-visible {
+  border-color: var(--cosmo-primary, #3b82f6) !important;
+  box-shadow:
+    0 0 0 3px var(--cosmo-primary-muted, rgba(59, 130, 246, 0.14)),
+    0 0 18px rgba(59, 130, 246, 0.12);
+  outline: none;
+}
+
+.cosmo-modal input:disabled,
+.cosmo-modal select:disabled,
+.cosmo-modal textarea:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.cosmo-modal label,
+.cosmo-modal .text-slate-700,
+.cosmo-modal .text-slate-600,
+.cosmo-modal .text-slate-900 {
+  color: var(--cosmo-text, #f9fafb) !important;
+}
+
+.cosmo-modal .text-slate-500,
+.cosmo-modal .text-slate-400 {
+  color: var(--cosmo-contrast-placeholder) !important;
+}
+
+.cosmo-modal .bg-white,
+.cosmo-modal .bg-slate-50,
+.cosmo-modal .bg-slate-100,
+.cosmo-modal .disabled\:bg-slate-100:disabled {
+  background-color: var(--cosmo-bg-muted, #1f2937) !important;
+}
+
+.cosmo-modal .border-slate-200,
+.cosmo-modal .border-slate-100 {
+  border-color: var(--cosmo-border, rgba(255, 255, 255, 0.1)) !important;
+}
+
+.cosmo-modal input[type="checkbox"],
+.cosmo-modal input[type="radio"] {
+  accent-color: var(--cosmo-primary, #3b82f6);
+}
+
+.cosmo-modal select option {
+  background: var(--cosmo-surface, #111827);
+  color: var(--cosmo-text, #f9fafb);
+}
+
+.cosmo-modal .cosmo-btn-cancel {
+  color: var(--cosmo-text, #f9fafb);
+  background: transparent;
+  border: 1px solid var(--cosmo-border, rgba(255, 255, 255, 0.1));
+}
+
+.cosmo-modal .cosmo-btn-cancel:hover {
+  background: var(--cosmo-bg-muted, #1f2937);
+}
+
+.cosmo-modal input:-webkit-autofill,
+.cosmo-modal input:-webkit-autofill:hover,
+.cosmo-modal input:-webkit-autofill:focus,
+.cosmo-modal textarea:-webkit-autofill {
+  -webkit-text-fill-color: var(--cosmo-text, #f9fafb) !important;
+  box-shadow: 0 0 0 1000px var(--cosmo-bg-muted, #1f2937) inset !important;
+  caret-color: var(--cosmo-text, #f9fafb);
+  transition: background-color 99999s ease-out 0s;
+}
+
+/* Base UI / shadcn Dialog portal (renders outside .cosmo-main-surface) */
+[data-slot="dialog-content"] {
+  background: var(--cosmo-surface, #111827) !important;
+  color: var(--cosmo-text, #f9fafb) !important;
+  border: 1px solid var(--cosmo-border, rgba(255, 255, 255, 0.1)) !important;
+  max-height: min(90vh, 720px);
+  overflow: hidden;
+}
+
+[data-slot="dialog-scroll"] {
+  overscroll-behavior: contain;
+}
+
+[data-slot="dialog-close"],
+[data-slot="dialog-close-bar"] {
+  color: var(--cosmo-text-muted, #94a3b8);
+}
+
+[data-slot="dialog-title"] {
+  color: var(--cosmo-text, #f9fafb) !important;
+}
+
+[data-slot="dialog-description"] {
+  color: var(--cosmo-text-muted, var(--cosmo-text-secondary, #94a3b8)) !important;
+}
+
+[data-slot="dialog-footer"] {
+  background: color-mix(in srgb, var(--cosmo-surface, #111827) 90%, #000 10%) !important;
+  border-color: var(--cosmo-border, rgba(255, 255, 255, 0.1)) !important;
+}
+
+[data-slot="dialog-content"] input:not([type="checkbox"]):not([type="radio"]),
+[data-slot="dialog-content"] select,
+[data-slot="dialog-content"] textarea,
+[data-slot="dialog-content"] [data-slot="input"] {
+  color: var(--cosmo-text, #f9fafb) !important;
+  -webkit-text-fill-color: var(--cosmo-text, #f9fafb);
+  background-color: var(--cosmo-bg-muted, #1f2937) !important;
+  border-color: var(--cosmo-border, rgba(255, 255, 255, 0.1)) !important;
+}
+
+[data-slot="dialog-content"] input::placeholder,
+[data-slot="dialog-content"] textarea::placeholder {
+  color: var(--cosmo-text-muted, var(--cosmo-text-secondary, #94a3b8)) !important;
+  opacity: 1;
+}

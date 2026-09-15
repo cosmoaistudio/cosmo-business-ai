@@ -1,32 +1,70 @@
-# React + TypeScript + Vite
+# Cosmo Business AI
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Plataforma operacional SaaS para food service: PDV, cozinha, financeiro, catálogo, pedido digital e Cosmo AI.
 
-Currently, two official plugins are available:
+Status atual: **Pronta para Piloto** (ver `docs/GO_LIVE_V1_REPORT.md`).  
+Fundação arquitetural: ver `docs/FOUNDATION_REPORT.md`.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Monorepo
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```
+src/                         # Web app (React + Vite)
+apps/desktop/electron/       # Desktop agent (Electron)
+apps/mobile/                 # Mobile (Expo)
+packages/shared/             # Contratos compartilhados (remote-commands)
+database/migrations/         # SQL versionado (001–025)
+docs/                        # Arquitetura, piloto, fundação
+tests/                       # Vitest unit/integration/e2e
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Stack
+
+- React 19 + TypeScript + Vite
+- Supabase (Auth, Postgres, Realtime, Storage)
+- Framer Motion + Design System V2 (`src/design-system`)
+- Electron Desktop Agent (impressão / gaveta / comandos remotos)
+- Expo Mobile + React Query (mobile)
+
+## Scripts
+
+```bash
+npm run dev              # Web
+npm run dev:desktop      # Web + Electron
+npm run build            # Web + Electron
+npm run typecheck
+npm run lint
+npm run test
+npm run validate:pilot   # Smoke do piloto
+```
+
+Mobile:
+
+```bash
+npm run mobile:typecheck
+npm run mobile:lint
+```
+
+## Arquitetura (resumo)
+
+Cada domínio vive em `src/features/<domínio>` com:
+
+`types → repository → service → hooks → components`
+
+Comunicação cross-módulo via **EventBus** (`src/core`).  
+Não chamar feature A direto de feature B.
+
+Documentação detalhada: `docs/ARCHITECTURE.md`.
+
+## Ambientes
+
+- Web: `.env` / Vite `VITE_SUPABASE_*`
+- Desktop: `.env.desktop` (ver `docs/DESKTOP_AGENT_SETUP.md`)
+- Mobile: `apps/mobile/.env`
+
+## Princípios de crescimento
+
+1. UX aprovada não é redesenhada sem necessidade.
+2. Regras de negócio e RPCs não mudam em sprints de fundação.
+3. Preferir utilitários em `src/lib` e contratos em `packages/shared`.
+4. Design System V2 é a camada canônica para novos componentes.
+5. Queries unbounded e duplicação de fetch são dívida alta — ver relatório de fundação.

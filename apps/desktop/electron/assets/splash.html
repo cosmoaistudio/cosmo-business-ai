@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cosmo Business</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #020617;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        color: #f8fafc;
+      }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background:
+          radial-gradient(ellipse 70% 55% at 50% 42%, rgba(59, 130, 246, 0.18) 0%, transparent 62%),
+          radial-gradient(ellipse 90% 70% at 50% 100%, rgba(99, 102, 241, 0.12) 0%, transparent 55%),
+          #020617;
+      }
+      .stage {
+        text-align: center;
+        animation: stage-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+      .mark {
+        width: 112px;
+        height: 112px;
+        margin: 0 auto;
+        /* No rectangular shell — C integrates with background */
+      }
+      .mark svg {
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+        display: block;
+      }
+      h1 {
+        margin-top: 1.1rem;
+        font-size: 1.75rem;
+        font-weight: 700;
+        letter-spacing: 0.32em;
+        text-indent: 0.32em;
+        animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
+      }
+      .tagline {
+        margin-top: 0.45rem;
+        font-size: 0.75rem;
+        letter-spacing: 0.2em;
+        text-indent: 0.2em;
+        text-transform: uppercase;
+        color: rgba(196, 181, 253, 0.85);
+        animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
+      }
+      .loading {
+        margin-top: 1.75rem;
+        font-size: 0.8125rem;
+        color: rgba(148, 163, 184, 0.85);
+        animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.55s both;
+      }
+      .track {
+        margin: 0.75rem auto 0;
+        width: 160px;
+        height: 2px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.07);
+        overflow: hidden;
+        animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.55s both;
+      }
+      .bar {
+        display: block;
+        height: 100%;
+        width: 100%;
+        transform-origin: left center;
+        transform: scaleX(0);
+        background: linear-gradient(90deg, #2563eb, #93c5fd);
+        animation: bar-fill 2s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+      }
+      @keyframes stage-in {
+        from { opacity: 0; transform: scale(0.96); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      @keyframes fade-up {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes bar-fill {
+        from { transform: scaleX(0); }
+        to { transform: scaleX(1); }
+      }
+      @keyframes edge-travel {
+        to { stroke-dashoffset: -288; }
+      }
+      .edge {
+        stroke-dasharray: 28 260;
+        animation: edge-travel 11s linear infinite;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .stage, h1, .tagline, .loading, .track, .bar, .edge {
+          animation: none !important;
+        }
+        .stage, h1, .tagline, .loading, .track { opacity: 1; transform: none; }
+        .bar { transform: scaleX(1); }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stage">
+      <div class="mark" aria-hidden="true">
+        <!-- Same Cosmo C path — stacked strokes, no filter/canvas -->
+        <svg viewBox="0 0 144 144">
+          <defs>
+            <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#e0f2fe" />
+              <stop offset="40%" stop-color="#93c5fd" />
+              <stop offset="100%" stop-color="#6366f1" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M 78 28 C 48 28 28 48 28 72 C 28 96 48 116 78 116 C 88 116 96 112 102 106"
+            fill="none"
+            stroke="url(#g)"
+            stroke-width="22"
+            stroke-linecap="round"
+            opacity="0.14"
+          />
+          <path
+            d="M 78 28 C 48 28 28 48 28 72 C 28 96 48 116 78 116 C 88 116 96 112 102 106"
+            fill="none"
+            stroke="url(#g)"
+            stroke-width="17"
+            stroke-linecap="round"
+            opacity="0.22"
+          />
+          <path
+            d="M 78 28 C 48 28 28 48 28 72 C 28 96 48 116 78 116 C 88 116 96 112 102 106"
+            fill="none"
+            stroke="url(#g)"
+            stroke-width="13"
+            stroke-linecap="round"
+          />
+          <path
+            class="edge"
+            d="M 78 28 C 48 28 28 48 28 72 C 28 96 48 116 78 116 C 88 116 96 112 102 106"
+            fill="none"
+            stroke="rgba(255,255,255,0.9)"
+            stroke-width="2.5"
+            stroke-linecap="round"
+          />
+        </svg>
+      </div>
+      <h1>COSMO</h1>
+      <p class="tagline">Business AI</p>
+      <p class="loading">Preparando o universo...</p>
+      <div class="track"><span class="bar"></span></div>
+    </div>
+  </body>
+</html>

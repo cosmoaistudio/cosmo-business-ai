@@ -1,0 +1,282 @@
+import {
+  useCallback,
+  useRef,
+  useState,
+  type DragEvent,
+} from "react";
+import {
+  ImageIcon,
+  ImagePlus,
+  Loader2,
+  RefreshCw,
+  Trash2,
+  Upload,
+} from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { getErrorMessage } from "@/lib/errors";
+import { PRODUCT_IMAGE_ACCEPT } from "../repository/productImage.repository";
+import { productImageService } from "../services/productImage.service";
+import { useProductImage } from "../hooks/useProductImage";
+
+interface ProductImageUploadProps {
+  productId: string;
+  organizationId: string;
+  imageUrl?: string;
+  disabled?: boolean;
+  persistToDatabase?: boolean;
+  onUploaded?: (publicUrl: string) => void;
+  onRemoved?: () => void;
+}
+
+export default function ProductImageUpload({
+  productId,
+  organizationId,
+  imageUrl = "",
+  disabled = false,
+  persistToDatabase = false,
+  onUploaded,
+  onRemoved,
+}: ProductImageUploadProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const {
+    imageUrl: currentImageUrl,
+    previewUrl,
+    uploading,
+    removing,
+    loading,
+    upload,
+    remove,
+  } = useProductImage({
+    productId,
+    organizationId,
+    initialImageUrl: imageUrl,
+    persistToDatabase,
+    onUploaded: (result) => onUploaded?.(result.publicUrl),
+    onRemoved,
+  });
+
+  const isBusy = uploading || removing;
+  const isDisabled =
+    disabled || isBusy || !organizationId || !productId || loading;
+  const displayUrl = previewUrl || currentImageUrl;
+  const hasPreview = Boolean(displayUrl);
+
+  const processFile = useCallback(
+    async (file: File) => {
+      try {
+        productImageService.validateImageFile(file);
+      } catch (error) {
+        toast.error(getErrorMessage(error, "Arquivo de imagem inválido"));
+        return;
+      }
+
+      await upload(file);
+    },
+    [upload]
+  );
+
+  function openFilePicker() {
+    if (isDisabled) return;
+    inputRef.current?.click();
+  }
+
+  async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    await processFile(file);
+  }
+
+  function handleDragOver(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    if (isDisabled) return;
+    setIsDragging(true);
+  }
+
+  function handleDragLeave(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    setIsDragging(false);
+  }
+
+  async function handleDrop(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    setIsDragging(false);
+
+    if (isDisabled) return;
+
+    const file = event.dataTransfer.files?.[0];
+    if (!file) return;
+
+    await processFile(file);
+  }
+
+  function handleRemove() {
+    void remove();
+  }
+
+  return (
+    <div className="space-y-4">
+      <div
+        role="button"
+        tabIndex={isDisabled ? -1 : 0}
+        aria-label="Área de upload de imagem do produto"
+        aria-busy={isBusy}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openFilePicker();
+          }
+        }}
+        onClick={() => {
+          if (!hasPreview && !isDisabled) openFilePicker();
+        }}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={`rounded-2xl border border-dashed p-4 transition-all duration-300 ease-out sm:p-6 ${
+          isDragging
+            ? "scale-[1.01] border-blue-500 bg-blue-50 shadow-md shadow-blue-100"
+            : "border-slate-300 bg-slate-50"
+        } ${
+          !hasPreview && !isDisabled
+            ? "cursor-pointer hover:border-blue-400 hover:bg-blue-50/70 hover:shadow-sm"
+            : ""
+        } ${hasPreview && !isDisabled ? "hover:border-slate-400 hover:bg-slate-100/80" : ""}`}
+      >
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="group relative">
+            {hasPreview ? (
+              <img
+                src={displayUrl}
+                alt="Preview da imagem do produto"
+                loading="eager"
+                decoding="async"
+                className="h-36 w-36 rounded-2xl object-cover shadow-md ring-1 ring-slate-200/80 transition-all duration-300 ease-out group-hover:scale-[1.02] group-hover:shadow-lg sm:h-44 sm:w-44 md:h-52 md:w-52"
+              />
+            ) : (
+              <div className="flex h-36 w-36 flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white text-slate-400 transition-all duration-300 ease-out hover:border-blue-200 hover:text-blue-500 sm:h-44 sm:w-44 md:h-52 md:w-52">
+                <ImagePlus
+                  size={36}
+                  className="transition-transform duration-300 group-hover:scale-110"
+                />
+                <ImageIcon size={24} className="opacity-60" />
+              </div>
+            )}
+
+            {isBusy && (
+              <div
+                className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-2xl bg-slate-900/45 backdrop-blur-[2px] transition-opacity duration-300"
+                aria-live="polite"
+                aria-label={uploading ? "Enviando imagem" : "Removendo imagem"}
+              >
+                <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-slate-200/70 via-slate-100/50 to-slate-200/70" />
+
+                <div className="relative z-10 flex flex-col items-center gap-2">
+                  <Loader2 className="h-8 w-8 animate-spin text-white drop-shadow-sm sm:h-9 sm:w-9" />
+                  <span className="text-xs font-medium text-white drop-shadow-sm">
+                    {uploading ? "Enviando..." : "Removendo..."}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="max-w-sm px-1">
+            <p className="text-sm font-medium text-slate-700">
+              Imagem do produto
+            </p>
+            <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+              Arraste uma imagem ou clique para selecionar
+            </p>
+            <p className="mt-1 text-xs text-slate-400">
+              PNG, JPG, JPEG ou WebP · convertido para WebP · máximo 3 MB
+            </p>
+          </div>
+
+          {!hasPreview && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-10 w-full rounded-xl transition-all duration-200 hover:border-blue-300 hover:bg-blue-50 sm:w-auto sm:min-w-[180px]"
+              disabled={isDisabled}
+              onClick={(event) => {
+                event.stopPropagation();
+                openFilePicker();
+              }}
+            >
+              {uploading ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <Upload size={16} />
+              )}
+              {uploading ? "Enviando..." : "Selecionar imagem"}
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {uploading && (
+        <div className="animate-in fade-in space-y-2 duration-300">
+          <div className="flex items-center justify-between text-xs text-slate-500 sm:text-sm">
+            <span className="flex items-center gap-2">
+              <Loader2 size={14} className="animate-spin text-blue-600" />
+              Processando e enviando imagem...
+            </span>
+          </div>
+          <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200">
+            <div className="h-full w-full animate-pulse rounded-full bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500" />
+          </div>
+        </div>
+      )}
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept={PRODUCT_IMAGE_ACCEPT}
+        className="hidden"
+        disabled={isDisabled}
+        onChange={handleFileChange}
+      />
+
+      {hasPreview && (
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-10 w-full rounded-xl transition-all duration-200 hover:border-blue-300 hover:bg-blue-50 sm:w-auto"
+            disabled={isDisabled}
+            onClick={openFilePicker}
+          >
+            {uploading ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <RefreshCw size={16} />
+            )}
+            {uploading ? "Enviando..." : "Trocar imagem"}
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-10 w-full rounded-xl text-red-600 transition-all duration-200 hover:border-red-200 hover:bg-red-50 hover:text-red-700 sm:w-auto"
+            disabled={isDisabled}
+            onClick={handleRemove}
+          >
+            {removing ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <Trash2 size={16} />
+            )}
+            {removing ? "Removendo..." : "Remover"}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}

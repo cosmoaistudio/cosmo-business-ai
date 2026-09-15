@@ -10,10 +10,11 @@
 
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@cosmo/remote-commands": ["./packages/shared/remote-commands/index.ts"]
     },
 
-    "types": ["vite/client"],
+    "types": ["vite/client", "vitest/globals"],
 
     "allowArbitraryExtensions": true,
     "allowImportingTsExtensions": true,
@@ -35,6 +36,7 @@
   },
 
   "include": [
-    "src"
+    "src",
+    "packages/shared/remote-commands"
   ]
 }

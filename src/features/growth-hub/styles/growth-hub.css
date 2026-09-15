@@ -1,0 +1,327 @@
+.cosmo-growth {
+  --growth-surface: rgba(15, 23, 42, 0.55);
+  --growth-border: rgba(255, 255, 255, 0.08);
+  --growth-blue: #3b82f6;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.cosmo-growth__nav {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  padding-bottom: 0.15rem;
+  scrollbar-width: none;
+}
+
+.cosmo-growth__nav::-webkit-scrollbar {
+  display: none;
+}
+
+.cosmo-growth__nav-btn {
+  flex: 0 0 auto;
+  height: 2.1rem;
+  padding: 0 0.85rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.03);
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.cosmo-growth__nav-btn:hover {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.cosmo-growth__nav-btn--active {
+  color: #dbeafe;
+  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(37, 99, 235, 0.2);
+}
+
+.cosmo-growth__panel {
+  border-radius: 1.125rem;
+  border: 1px solid var(--growth-border);
+  background: var(--growth-surface);
+  backdrop-filter: blur(18px);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 16px 40px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  padding: 1.15rem 1.2rem;
+}
+
+.cosmo-growth__panel-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f8fafc;
+  letter-spacing: -0.02em;
+}
+
+.cosmo-growth__panel-desc {
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: #94a3b8;
+}
+
+.cosmo-growth__grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 720px) {
+  .cosmo-growth__grid--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cosmo-growth__grid--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .cosmo-growth__grid--4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .cosmo-growth__grid--6 {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+.cosmo-growth__stat,
+.cosmo-growth__card {
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.9rem 1rem;
+  transition:
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.cosmo-growth__stat:hover,
+.cosmo-growth__card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(96, 165, 250, 0.28);
+  box-shadow: 0 10px 28px rgba(37, 99, 235, 0.12);
+}
+
+.cosmo-growth__stat-label,
+.cosmo-growth__meta {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.cosmo-growth__stat-value {
+  margin-top: 0.35rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.cosmo-growth__stat-hint,
+.cosmo-growth__card p {
+  margin-top: 0.25rem;
+  font-size: 0.78rem;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.cosmo-growth__card h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.cosmo-growth__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fde68a;
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(251, 191, 36, 0.28);
+}
+
+.cosmo-growth__badge--blue {
+  color: #bfdbfe;
+  background: rgba(37, 99, 235, 0.16);
+  border-color: rgba(96, 165, 250, 0.3);
+}
+
+.cosmo-growth__badge--green {
+  color: #a7f3d0;
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(52, 211, 153, 0.28);
+}
+
+.cosmo-growth__form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 900px) {
+  .cosmo-growth__form {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cosmo-growth__form-span {
+    grid-column: span 2;
+  }
+}
+
+.cosmo-growth__field label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.cosmo-growth__field input,
+.cosmo-growth__field select {
+  width: 100%;
+  height: 2.5rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(2, 6, 23, 0.35);
+  color: #f8fafc;
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.cosmo-growth__field input:focus,
+.cosmo-growth__field select:focus {
+  border-color: rgba(96, 165, 250, 0.45);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.cosmo-growth__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.cosmo-growth__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2.4rem;
+  padding: 0 0.95rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #e2e8f0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.cosmo-growth__btn:hover {
+  transform: scale(1.02);
+  background: rgba(59, 130, 246, 0.14);
+  border-color: rgba(96, 165, 250, 0.35);
+}
+
+.cosmo-growth__btn--primary {
+  color: #fff;
+  border-color: rgba(59, 130, 246, 0.4);
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.28);
+}
+
+.cosmo-growth__btn--primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.cosmo-growth__view-toggle {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.2rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cosmo-growth__view-toggle button {
+  height: 1.9rem;
+  padding: 0 0.65rem;
+  border: 0;
+  border-radius: 0.55rem;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cosmo-growth__view-toggle button[data-active="true"] {
+  background: rgba(37, 99, 235, 0.22);
+  color: #dbeafe;
+}
+
+.cosmo-growth__calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin-top: 0.85rem;
+}
+
+.cosmo-growth__calendar-cell {
+  min-height: 4.5rem;
+  border-radius: 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(2, 6, 23, 0.28);
+  padding: 0.4rem;
+}
+
+.cosmo-growth__calendar-cell span {
+  font-size: 0.68rem;
+  color: #64748b;
+}
+
+.cosmo-growth__pill {
+  margin-top: 0.3rem;
+  display: block;
+  border-radius: 0.4rem;
+  padding: 0.2rem 0.35rem;
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: #dbeafe;
+  background: rgba(37, 99, 235, 0.22);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .cosmo-growth__calendar-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

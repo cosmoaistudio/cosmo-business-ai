@@ -1,110 +1,165 @@
 import {
+  Blocks,
+  Brain,
+  ChefHat,
+  ClipboardList,
   LayoutDashboard,
+  Layers,
+  LifeBuoy,
+  ListChecks,
   Package,
-  ShoppingCart,
-  Users,
-  Bot,
+  Plug,
+  Printer,
+  Radar,
+  CreditCard,
   Settings,
+  Sparkles,
+  Stethoscope,
+  Store,
+  TrendingUp,
+  Users,
+  Wallet,
+  Warehouse,
+  Workflow,
+  type LucideIcon,
 } from "lucide-react";
 
-import { NavLink } from "react-router-dom";
+import {
+  SidebarNavGroup,
+  SidebarNavItem,
+  SidebarShell,
+  useSidebarCollapse,
+} from "@/design-system";
+import "@/design-system/styles/design-system.css";
 
-import Logo from "./Logo";
+import { canAccessRoute, type AppRoute } from "@/features/auth";
+import { useAuth } from "@/features/auth/context/AuthContext";
 
-const menu = [
+interface NavItem {
+  icon: LucideIcon;
+  label: string;
+  path: AppRoute;
+  end?: boolean;
+  badge?: string;
+}
+
+interface NavGroup {
+  id: string;
+  label: string;
+  items: NavItem[];
+}
+
+const navigationGroups: NavGroup[] = [
   {
-    icon: LayoutDashboard,
-    label: "Dashboard",
-    path: "/",
+    id: "operation",
+    label: "Operação",
+    items: [
+      { icon: LayoutDashboard, label: "Dashboard", path: "/", end: true },
+      { icon: Radar, label: "Centro de Operações", path: "/operacoes" },
+      { icon: Store, label: "PDV", path: "/pdv" },
+      { icon: ClipboardList, label: "Pedidos", path: "/pedidos" },
+      { icon: ChefHat, label: "Cozinha", path: "/cozinha" },
+    ],
   },
   {
-    icon: Package,
-    label: "Produtos",
-    path: "/produtos",
+    id: "management",
+    label: "Gestão",
+    items: [
+      { icon: Wallet, label: "Financeiro", path: "/financeiro" },
+      { icon: Users, label: "Clientes", path: "/clientes" },
+      { icon: Warehouse, label: "Estoque", path: "/estoque" },
+    ],
   },
   {
-    icon: ShoppingCart,
-    label: "Pedidos",
-    path: "/pedidos",
+    id: "catalog",
+    label: "Catálogo",
+    items: [
+      { icon: Package, label: "Produtos", path: "/produtos", end: true },
+      { icon: ListChecks, label: "Grupos de Opções", path: "/opcoes/grupos" },
+      { icon: Layers, label: "Itens de Opções", path: "/opcoes/itens" },
+      { icon: Blocks, label: "Product Builder", path: "/produtos/builder" },
+    ],
   },
   {
-    icon: Users,
-    label: "Clientes",
-    path: "/clientes",
+    id: "intelligence",
+    label: "Inteligência",
+    items: [
+      { icon: Sparkles, label: "Cosmo AI", path: "/ia" },
+      { icon: Brain, label: "Business Brain", path: "/cerebro" },
+      { icon: Workflow, label: "Automações", path: "/automacoes" },
+    ],
   },
   {
-    icon: Bot,
-    label: "Cosmo AI",
-    path: "/ia",
+    id: "growth",
+    label: "Crescimento",
+    items: [
+      { icon: TrendingUp, label: "Growth Hub", path: "/crescimento" },
+    ],
   },
   {
-    icon: Settings,
-    label: "Configurações",
-    path: "/configuracoes",
+    id: "system",
+    label: "Sistema",
+    items: [
+      { icon: CreditCard, label: "Meu Plano", path: "/meu-plano" },
+      { icon: Settings, label: "Configurações", path: "/configuracoes" },
+      {
+        icon: Plug,
+        label: "Pedido Digital",
+        path: "/configuracoes/pedido-digital",
+      },
+      {
+        icon: Printer,
+        label: "Hardware",
+        path: "/configuracoes/hardware",
+      },
+      { icon: LifeBuoy, label: "Central de Ajuda", path: "/ajuda" },
+      { icon: Stethoscope, label: "Diagnóstico", path: "/diagnostico" },
+    ],
   },
 ];
 
 export default function Sidebar() {
+  const { profile } = useAuth();
+  const role = profile?.role;
+  const { collapsed, toggle } = useSidebarCollapse();
+
+  const visibleGroups = navigationGroups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => canAccessRoute(role, item.path)),
+    }))
+    .filter((group) => group.items.length > 0);
+
   return (
-    <aside className="flex h-screen w-72 flex-col border-r border-slate-800 bg-slate-950">
-
-      <div className="p-6">
-        <Logo />
-      </div>
-
-      <nav className="flex-1 px-4">
-
-        {menu.map((item) => {
-
-          const Icon = item.icon;
-
-          return (
-
-            <NavLink
-              key={item.label}
-              to={item.path}
-              className={({ isActive }) =>
-                `group mb-2 flex w-full items-center gap-4 rounded-2xl px-4 py-3 transition-all duration-300 ${
-                  isActive
-                    ? "bg-blue-600 text-white shadow-lg shadow-blue-700/30"
-                    : "text-slate-400 hover:bg-slate-900 hover:text-white"
-                }`
-              }
-            >
-
-              <Icon
-                size={21}
-                className="transition-transform duration-300 group-hover:scale-110"
-              />
-
-              <span className="font-medium">
-                {item.label}
-              </span>
-
-            </NavLink>
-
-          );
-
-        })}
-
-      </nav>
-
-      <div className="border-t border-slate-800 p-6">
-
-        <div className="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 p-5">
-
-          <p className="text-sm font-semibold text-white">
-            🚀 Upgrade PRO
-          </p>
-
-          <p className="mt-2 text-xs text-slate-400">
-            Desbloqueie IA, Marketing, Financeiro e muito mais.
-          </p>
-
+    <SidebarShell
+      collapsed={collapsed}
+      onToggle={toggle}
+      footer={
+        <div className="cosmo-v2-sidebar__meta">
+          <span className="cosmo-v2-sidebar__badge">Piloto</span>
+          {profile?.organizations?.name ? (
+            <p className="cosmo-v2-sidebar__org" title={profile.organizations.name}>
+              {profile.organizations.name}
+            </p>
+          ) : null}
         </div>
-
-      </div>
-
-    </aside>
+      }
+    >
+      {visibleGroups.map((group) => (
+        <SidebarNavGroup key={group.id} label={group.label} collapsed={collapsed}>
+          {group.items.map((item) => (
+            <SidebarNavItem
+              key={item.path}
+              to={item.path}
+              label={item.label}
+              icon={item.icon}
+              collapsed={collapsed}
+              end={item.end}
+              badge={item.badge}
+            />
+          ))}
+        </SidebarNavGroup>
+      ))}
+    </SidebarShell>
   );
 }

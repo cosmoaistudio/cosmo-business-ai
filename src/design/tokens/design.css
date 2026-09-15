@@ -1,0 +1,147 @@
+/* Cosmo Design System — CSS Variables */
+
+:root {
+  --cosmo-bg: #050816;
+  --cosmo-bg-elevated: #0b1020;
+  --cosmo-bg-muted: #111827;
+  --cosmo-surface: #0f172a;
+  --cosmo-primary: #2563eb;
+  --cosmo-primary-hover: #1d4ed8;
+  --cosmo-primary-glow: rgba(37, 99, 235, 0.45);
+  --cosmo-secondary: #7c3aed;
+  --cosmo-success: #10b981;
+  --cosmo-warning: #f59e0b;
+  --cosmo-danger: #ef4444;
+  --cosmo-text: #f8fafc;
+  --cosmo-text-muted: #94a3b8;
+  --cosmo-border: rgba(255, 255, 255, 0.08);
+  --cosmo-radius-lg: 0.75rem;
+  --cosmo-radius-xl: 1rem;
+  --cosmo-radius-2xl: 1.25rem;
+  --cosmo-gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #06b6d4 100%);
+  --cosmo-gradient-logo: linear-gradient(135deg, #2563eb 0%, #3b82f6 45%, #7c3aed 100%);
+  --cosmo-shadow-glow: 0 0 40px rgba(37, 99, 235, 0.35);
+}
+
+.cosmo-glass-sidebar {
+  background: linear-gradient(180deg, rgb(5 8 22 / 0.94) 0%, rgb(11 16 32 / 0.9) 100%);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border-right: 1px solid var(--cosmo-border);
+  box-shadow: inset -1px 0 0 rgb(255 255 255 / 0.03), 8px 0 48px rgb(0 0 0 / 0.35);
+}
+
+.cosmo-glass-topbar {
+  background: rgb(5 8 22 / 0.78);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border-bottom: 1px solid var(--cosmo-border);
+}
+
+.cosmo-premium-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--cosmo-radius-2xl);
+  border: 1px solid var(--cosmo-border);
+  background:
+    linear-gradient(145deg, rgb(15 23 42 / 0.72) 0%, rgb(11 16 32 / 0.92) 100%);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.24),
+    0 12px 32px rgb(0 0 0 / 0.28),
+    inset 0 1px 0 rgb(255 255 255 / 0.05);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease;
+}
+
+.cosmo-premium-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(145deg, rgb(255 255 255 / 0.05) 0%, transparent 45%);
+  pointer-events: none;
+}
+
+.cosmo-premium-card:hover {
+  border-color: rgb(37 99 235 / 0.22);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.24),
+    0 18px 40px rgb(37 99 235 / 0.12),
+    inset 0 1px 0 rgb(255 255 255 / 0.06);
+}
+
+.cosmo-main-surface {
+  background:
+    radial-gradient(circle at top right, rgb(37 99 235 / 0.1), transparent 32%),
+    radial-gradient(circle at 20% 80%, rgb(124 58 237 / 0.06), transparent 28%),
+    linear-gradient(180deg, #060b18 0%, #050816 100%);
+}
+
+.cosmo-logo-3d {
+  animation: cosmo-logo-spin 24s linear infinite;
+  transform-origin: center center;
+  transform-style: preserve-3d;
+  will-change: transform;
+  box-shadow: var(--cosmo-shadow-glow);
+}
+
+.cosmo-logo-shell-premium {
+  background: var(--cosmo-gradient-logo);
+  transition:
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cosmo-logo-shell-premium:hover {
+  transform: scale(1.04);
+  box-shadow:
+    0 0 0 1px rgb(59 130 246 / 0.2),
+    0 0 32px rgb(37 99 235 / 0.35),
+    0 14px 36px rgb(37 99 235 / 0.22);
+}
+
+.cosmo-sidebar-rail {
+  width: 4rem;
+}
+
+.cosmo-sidebar-active-indicator {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 3px;
+  height: 60%;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #2563eb, #7c3aed);
+  box-shadow: 0 0 12px rgb(37 99 235 / 0.65);
+}
+
+.cosmo-search-shell {
+  background: rgb(255 255 255 / 0.04);
+  border: 1px solid rgb(255 255 255 / 0.08);
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.cosmo-search-shell:focus-within {
+  border-color: rgb(37 99 235 / 0.45);
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 0.12);
+  background: rgb(255 255 255 / 0.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cosmo-logo-3d,
+  .cosmo-premium-card,
+  .cosmo-logo-shell-premium {
+    animation: none;
+    transition: none;
+  }
+
+  .cosmo-logo-shell-premium:hover,
+  .cosmo-premium-card:hover {
+    transform: none;
+  }
+}

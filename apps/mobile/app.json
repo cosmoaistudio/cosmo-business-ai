@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "Cosmo Mobile",
+    "slug": "cosmo-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "cosmo-mobile",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#050816"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cosmo.business.mobile"
+    },
+    "android": {
+      "package": "com.cosmo.business.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#0f172a"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-asset",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

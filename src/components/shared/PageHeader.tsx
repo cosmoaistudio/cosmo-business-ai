@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import { motion } from "framer-motion";
+import { useMotionPreferences } from "@/motion/hooks/useMotionPreferences";
+import { fadeSlideUp, reducedMotionVariants } from "@/motion/transitions";
 
 interface PageHeaderProps {
   title: string;
@@ -12,23 +14,25 @@ export default function PageHeader({
   subtitle,
   action,
 }: PageHeaderProps) {
+  const { reducedMotion } = useMotionPreferences();
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: -12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
-      className="mb-8 flex items-center justify-between"
+      initial="hidden"
+      animate="visible"
+      variants={reducedMotion ? reducedMotionVariants : fadeSlideUp}
+      className="mb-8 flex flex-wrap items-center justify-between gap-4"
     >
-      <div>
-        <h1 className="text-4xl font-bold tracking-tight text-slate-900">
+      <div className="min-w-0">
+        <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
           {title}
         </h1>
 
-        {subtitle && (
-          <p className="mt-2 text-slate-500">
+        {subtitle ? (
+          <p className="mt-2 max-w-2xl text-sm text-slate-400 sm:text-base">
             {subtitle}
           </p>
-        )}
+        ) : null}
       </div>
 
       {action}

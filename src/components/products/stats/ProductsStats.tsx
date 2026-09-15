@@ -1,41 +1,50 @@
 import {
   Package,
-  AlertTriangle,
-  Layers3,
+  CheckCircle2,
+  XCircle,
   DollarSign,
 } from "lucide-react";
+import type { Product } from "@/features/products";
+import { computeProductStats } from "@/features/products";
+import { formatCurrency } from "@/lib/format";
 
-const stats = [
-  {
-    title: "Produtos",
-    value: "128",
-    icon: Package,
-    color: "bg-blue-500",
-  },
-  {
-    title: "Estoque Baixo",
-    value: "7",
-    icon: AlertTriangle,
-    color: "bg-amber-500",
-  },
-  {
-    title: "Categorias",
-    value: "12",
-    icon: Layers3,
-    color: "bg-violet-500",
-  },
-  {
-    title: "Valor em Estoque",
-    value: "R$ 38.450",
-    icon: DollarSign,
-    color: "bg-emerald-500",
-  },
-];
+interface ProductsStatsProps {
+  products: Product[];
+}
 
-export default function ProductsStats() {
+export default function ProductsStats({ products }: ProductsStatsProps) {
+  const stats = computeProductStats(products);
+
+  const items = [
+    {
+      title: "Total de Produtos",
+      value: String(stats.total),
+      icon: Package,
+      color: "bg-blue-500",
+    },
+    {
+      title: "Produtos Ativos",
+      value: String(stats.active),
+      icon: CheckCircle2,
+      color: "bg-emerald-500",
+    },
+    {
+      title: "Produtos Inativos",
+      value: String(stats.inactive),
+      icon: XCircle,
+      color: "bg-red-500",
+    },
+    {
+      title: "Valor Estimado do Estoque",
+      value: formatCurrency(stats.estimatedStockValue),
+      icon: DollarSign,
+      color: "bg-violet-500",
+    },
+  ];
+
   return (
     <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-      {stats.map((item) => {
+      {items.map((item) => {
         const Icon = item.icon;
 
         return (
@@ -49,15 +58,9 @@ export default function ProductsStats() {
               >
                 <Icon size={26} />
               </div>
-
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                Hoje
-              </span>
             </div>
 
-            <h3 className="mt-6 text-sm text-slate-500">
-              {item.title}
-            </h3>
+            <h3 className="mt-6 text-sm text-slate-500">{item.title}</h3>
 
             <p className="mt-2 text-3xl font-black text-slate-900">
               {item.value}

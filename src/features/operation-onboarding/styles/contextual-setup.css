@@ -1,0 +1,142 @@
+/* Contextual setup banner — destination screens */
+
+.contextual-setup {
+  position: relative;
+  border-radius: 1.15rem;
+  border: 1px solid rgba(129, 140, 248, 0.35);
+  background:
+    radial-gradient(ellipse 70% 80% at 0% 0%, rgba(59, 130, 246, 0.16), transparent 55%),
+    linear-gradient(145deg, rgba(30, 27, 75, 0.45), rgba(15, 23, 42, 0.88));
+  padding: 1rem 1.1rem 1.05rem;
+  margin-bottom: 0.25rem;
+}
+
+.contextual-setup--success {
+  border-color: rgba(52, 211, 153, 0.35);
+  background:
+    radial-gradient(ellipse 70% 80% at 0% 0%, rgba(16, 185, 129, 0.18), transparent 55%),
+    linear-gradient(145deg, rgba(6, 78, 59, 0.35), rgba(15, 23, 42, 0.88));
+}
+
+.contextual-setup__close {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.55rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.45);
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.contextual-setup__close:hover {
+  color: #e2e8f0;
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+.contextual-setup__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #a5b4fc;
+  margin-bottom: 0.55rem;
+  padding-right: 1.75rem;
+}
+
+.contextual-setup--success .contextual-setup__eyebrow {
+  color: #6ee7b7;
+}
+
+.contextual-setup__head {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.contextual-setup__icon {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.75rem;
+  display: grid;
+  place-items: center;
+  color: #e0e7ff;
+  background: rgba(99, 102, 241, 0.3);
+  border: 1px solid rgba(165, 180, 252, 0.3);
+}
+
+.contextual-setup__title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #f8fafc;
+  letter-spacing: -0.01em;
+  padding-right: 1.5rem;
+}
+
+.contextual-setup__desc {
+  margin-top: 0.25rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: rgba(203, 213, 225, 0.95);
+  max-width: 40rem;
+}
+
+.contextual-setup__steps {
+  margin: 0.75rem 0 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: #e2e8f0;
+  line-height: 1.4;
+}
+
+.contextual-setup__tip {
+  margin-top: 0.7rem;
+  display: flex;
+  gap: 0.4rem;
+  align-items: flex-start;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: rgba(186, 230, 253, 0.95);
+}
+
+.contextual-setup__tip svg {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  color: #7dd3fc;
+}
+
+.contextual-setup__cta {
+  margin-top: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: none;
+  border-radius: 0.85rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 55%, #8b5cf6 100%);
+  color: #fff;
+  font-size: 0.84rem;
+  font-weight: 700;
+  padding: 0.62rem 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.28);
+}
+
+.contextual-setup__cta:hover {
+  filter: brightness(1.05);
+}
+
+.contextual-setup--success .contextual-setup__cta {
+  background: linear-gradient(135deg, #059669 0%, #10b981 55%, #34d399 100%);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.28);
+}

@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "@fontsource-variable/geist";
+@import "./design/tokens/design.css";
+@import "./design-system/styles/cosmo-official.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -121,9 +123,211 @@
     @apply border-border outline-ring/50;
     }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-[#050816] text-foreground;
     }
   html {
     @apply font-sans;
     }
+}
+
+/* ── Cosmo Motion & Premium UI ── */
+
+@keyframes cosmo-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes cosmo-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes cosmo-placeholder-in {
+  from { opacity: 0.45; transform: translateY(2px); }
+  to { opacity: 0.75; transform: translateY(0); }
+}
+
+@keyframes cosmo-ripple {
+  from {
+    transform: scale(0);
+    opacity: 0.45;
+  }
+  to {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.cosmo-logo-mark {
+  animation: cosmo-logo-spin 22s linear infinite;
+  transform-origin: center center;
+}
+
+.cosmo-logo-shell {
+  transition:
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cosmo-logo-shell:hover {
+  transform: scale(1.04);
+  box-shadow:
+    0 0 0 1px rgb(59 130 246 / 0.18),
+    0 0 28px rgb(59 130 246 / 0.28),
+    0 12px 32px rgb(37 99 235 / 0.22);
+}
+
+.glass-sidebar {
+  background:
+    linear-gradient(180deg, rgb(2 6 23 / 0.88) 0%, rgb(15 23 42 / 0.82) 100%);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  box-shadow:
+    inset -1px 0 0 rgb(255 255 255 / 0.04),
+    8px 0 40px rgb(0 0 0 / 0.28);
+}
+
+.glass-sidebar-panel {
+  background: rgb(255 255 255 / 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgb(255 255 255 / 0.06);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.05),
+    0 10px 30px rgb(0 0 0 / 0.22);
+}
+
+.cosmo-card {
+  border-radius: 1.5rem;
+  border: 1px solid rgb(226 232 240 / 0.85);
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 0.92) 0%, rgb(248 250 252 / 0.78) 100%);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.04),
+    0 8px 24px rgb(15 23 42 / 0.06),
+    inset 0 1px 0 rgb(255 255 255 / 0.75);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease;
+}
+
+.cosmo-card:hover {
+  border-color: rgb(191 219 254 / 0.9);
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.05),
+    0 14px 36px rgb(37 99 235 / 0.1),
+    inset 0 1px 0 rgb(255 255 255 / 0.85);
+}
+
+.cosmo-skeleton {
+  background:
+    linear-gradient(
+      90deg,
+      rgb(226 232 240 / 0.55) 0%,
+      rgb(241 245 249 / 0.95) 45%,
+      rgb(226 232 240 / 0.55) 100%
+    );
+  background-size: 200% 100%;
+  animation: cosmo-shimmer 1.6s ease-in-out infinite;
+}
+
+.cosmo-input {
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.cosmo-input::placeholder {
+  animation: cosmo-placeholder-in 0.35s ease both;
+}
+
+.cosmo-input:focus-visible {
+  border-color: rgb(59 130 246 / 0.55) !important;
+  box-shadow:
+    0 0 0 3px rgb(59 130 246 / 0.14),
+    0 0 18px rgb(59 130 246 / 0.12) !important;
+}
+
+.cosmo-button {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease,
+    background-color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.cosmo-button:hover:not(:disabled) {
+  box-shadow: 0 8px 22px rgb(15 23 42 / 0.08);
+}
+
+.cosmo-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.cosmo-button:focus-visible {
+  box-shadow:
+    0 0 0 3px rgb(59 130 246 / 0.18),
+    0 0 0 1px rgb(59 130 246 / 0.35);
+}
+
+.cosmo-ripple {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  background: rgb(255 255 255 / 0.42);
+  animation: cosmo-ripple 0.6s ease-out forwards;
+}
+
+.sidebar-nav-link {
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.28s ease,
+    color 0.28s ease,
+    box-shadow 0.28s ease;
+}
+
+.sidebar-nav-link:hover {
+  transform: translateX(2px);
+}
+
+.app-main-surface {
+  background:
+    radial-gradient(circle at top right, rgb(219 234 254 / 0.35), transparent 28%),
+    linear-gradient(180deg, rgb(248 250 252) 0%, rgb(241 245 249) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cosmo-logo-mark {
+    animation: none;
+  }
+
+  .cosmo-logo-shell:hover {
+    transform: none;
+  }
+
+  .cosmo-skeleton {
+    animation: none;
+    background: rgb(226 232 240 / 0.8);
+  }
+
+  .cosmo-card,
+  .cosmo-button,
+  .sidebar-nav-link,
+  .cosmo-input::placeholder {
+    transition: none;
+    animation: none;
+  }
+
+  .cosmo-card:hover,
+  .cosmo-button:active:not(:disabled),
+  .sidebar-nav-link:hover {
+    transform: none;
+  }
 }

@@ -1,0 +1,25 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "module": "esnext",
+    "baseUrl": ".",
+    "paths": {
+      "@/features/product-engine/*": ["../../src/features/product-engine/*"],
+      "@/features/product-composition/types/*": ["../../src/features/product-composition/types/*"],
+      "@/features/products/types/*": ["../../src/features/products/types/*"],
+      "@/features/pdv/types/*": ["../../src/features/pdv/types/*"],
+      "@/*": ["src/*"],
+      "@cosmo/remote-commands": ["../../packages/shared/remote-commands/index.ts"]
+    },
+    "types": ["nativewind/types", "node"]
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "nativewind-env.d.ts"
+  ],
+  "exclude": ["node_modules"]
+}

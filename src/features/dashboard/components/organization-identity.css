@@ -1,0 +1,103 @@
+.org-identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.15rem;
+  border-radius: 1.35rem;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  background:
+    radial-gradient(ellipse 60% 80% at 0% 50%, rgba(59, 130, 246, 0.12), transparent 55%),
+    linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(2, 6, 23, 0.88));
+  padding: 1rem 1.15rem;
+}
+
+.org-identity__copy {
+  flex: 1;
+  min-width: 12rem;
+}
+
+.org-identity__name {
+  font-size: clamp(1.2rem, 2.6vw, 1.55rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #f8fafc;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.org-identity__wave {
+  font-weight: 500;
+}
+
+.org-identity__welcome {
+  margin-top: 0.2rem;
+  font-size: 0.9rem;
+  color: rgba(203, 213, 225, 0.95);
+}
+
+.org-identity__city {
+  margin-top: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: rgba(148, 163, 184, 0.95);
+}
+
+.org-identity__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.55);
+  padding: 0.55rem 0.85rem;
+  margin-left: auto;
+}
+
+.org-identity__status--progress {
+  border-color: rgba(250, 204, 21, 0.35);
+  background: rgba(113, 63, 18, 0.28);
+}
+
+.org-identity__status--ready {
+  border-color: rgba(52, 211, 153, 0.35);
+  background: rgba(6, 78, 59, 0.28);
+}
+
+.org-identity__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.org-identity__status--progress .org-identity__dot {
+  background: #facc15;
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.55);
+}
+
+.org-identity__status--ready .org-identity__dot {
+  background: #34d399;
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.55);
+}
+
+.org-identity__status-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  line-height: 1.2;
+}
+
+.org-identity__status-meta {
+  margin-top: 0.1rem;
+  font-size: 0.7rem;
+  color: rgba(253, 224, 71, 0.9);
+}
+
+@media (max-width: 640px) {
+  .org-identity__status {
+    margin-left: 0;
+    width: 100%;
+  }
+}

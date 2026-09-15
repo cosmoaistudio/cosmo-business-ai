@@ -1,8 +1,19 @@
 import type { ReactNode } from "react";
 
+import { CosmicBackground } from "@/design-system";
+import "@/design-system/styles/design-system.css";
+import "@/design-system/styles/cosmo-official.css";
+import "@/design-system/styles/cosmo-contrast-fix.css";
+import "@/design-system/styles/cosmo-modal.css";
+import "@/features/dashboard/styles/cosmo-os.css";
+
+import { CosmoAiProvider } from "@/features/cosmo-ai";
+
+import { CosmoAiDrawerProvider } from "../ai/CosmoAiDrawerContext";
+import FloatingAssistDock from "./FloatingAssistDock";
+import { OverlayPresenceProvider } from "./OverlayPresenceContext";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
-import CosmoAIWidget from "../ai/CosmoAIWidget";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -10,22 +21,30 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-100">
+    <CosmoAiProvider>
+      <CosmoAiDrawerProvider>
+        <OverlayPresenceProvider>
+          <div
+            className="relative flex h-screen overflow-hidden text-slate-100"
+            data-cosmo-ds="v2"
+            data-theme="dark"
+          >
+            <CosmicBackground intensity="subtle" />
 
-      <Sidebar />
+            <Sidebar />
 
-      <div className="flex flex-1 flex-col">
+            <div className="relative z-[1] flex min-w-0 flex-1 flex-col">
+              <Topbar />
 
-        <Topbar />
+              <main className="cosmo-main-surface flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+                {children}
+              </main>
+            </div>
 
-        <main className="flex-1 overflow-y-auto p-8">
-          {children}
-        </main>
-
-      </div>
-
-      <CosmoAIWidget />
-
-    </div>
+            <FloatingAssistDock />
+          </div>
+        </OverlayPresenceProvider>
+      </CosmoAiDrawerProvider>
+    </CosmoAiProvider>
   );
 }

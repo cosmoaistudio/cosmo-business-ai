@@ -1,37 +1,81 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/shared/PageHeader";
-import ProductModal from "@/features/products/components/ProductModal";
+import {
+  ProductCreateTypeDialog,
+  ProductModal,
+  type CreateProductIntent,
+} from "@/features/products";
 
 interface Props {
   reload: () => void;
+  /** Increment to open the create-product flow from outside (contextual CTA). */
+  openCreateRequest?: number;
+  categorySuggestions?: string[];
+  onProductSaved?: () => void | Promise<void>;
+  onAddonChanged?: () => void | Promise<void>;
 }
 
-export default function ProductsHeader({ reload }: Props) {
-  const [open, setOpen] = useState(false);
+export default function ProductsHeader({
+  reload,
+  openCreateRequest = 0,
+  categorySuggestions = [],
+  onProductSaved,
+  onAddonChanged,
+}: Props) {
+  const navigate = useNavigate();
+  const [typeOpen, setTypeOpen] = useState(false);
+  const [createIntent, setCreateIntent] = useState<CreateProductIntent | null>(
+    null
+  );
+
+  useEffect(() => {
+    if (openCreateRequest > 0) {
+      setTypeOpen(true);
+    }
+  }, [openCreateRequest]);
 
   return (
     <>
       <PageHeader
         title="Produtos"
-        subtitle="Gerencie todos os produtos da sua empresa."
+        subtitle="Simples, copos montados e combos."
         action={
-          <Button
-            className="rounded-xl"
-            onClick={() => setOpen(true)}
-          >
+          <Button className="rounded-xl" onClick={() => setTypeOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
-            Novo Produto
+            Criar produto
           </Button>
         }
       />
 
-      {open && (
+      {typeOpen && (
+        <ProductCreateTypeDialog
+          onClose={() => setTypeOpen(false)}
+          onChoose={(intent) => {
+            setTypeOpen(false);
+            setCreateIntent(intent);
+          }}
+        />
+      )}
+
+      {createIntent && (
         <ProductModal
-          onClose={() => setOpen(false)}
-          onSaved={reload}
+          createIntent={createIntent}
+          categorySuggestions={categorySuggestions}
+          onClose={() => setCreateIntent(null)}
+          onAddonChanged={() => void onAddonChanged?.()}
+          onSaved={(productId) => {
+            reload();
+            void onProductSaved?.();
+            if (createIntent === "assembled" && productId) {
+              setCreateIntent(null);
+              void navigate(`/produtos/builder/${productId}`);
+              return;
+            }
+          }}
         />
       )}
     </>

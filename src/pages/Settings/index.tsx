@@ -1,7 +1,12 @@
+import { SaasProvider, SettingsHubPage } from "@/features/saas";
+import { AnimatedPage } from "@/motion";
+
 export default function Settings() {
   return (
-    <div className="text-3xl font-bold">
-      ⚙️ Configurações
-    </div>
+    <SaasProvider>
+      <AnimatedPage>
+        <SettingsHubPage />
+      </AnimatedPage>
+    </SaasProvider>
   );
 }

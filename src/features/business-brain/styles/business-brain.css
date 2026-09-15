@@ -1,0 +1,242 @@
+.cosmo-brain {
+  --brain-surface: rgba(15, 23, 42, 0.55);
+  --brain-border: rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.cosmo-brain__grid {
+  display: grid;
+  gap: 1.1rem;
+}
+
+@media (min-width: 1100px) {
+  .cosmo-brain__grid--main {
+    grid-template-columns: 1.4fr 1fr;
+  }
+}
+
+.cosmo-brain__panel {
+  border-radius: 1.125rem;
+  border: 1px solid var(--brain-border);
+  background: var(--brain-surface);
+  backdrop-filter: blur(18px);
+  padding: 1.15rem 1.2rem;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 16px 40px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.cosmo-brain__title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #f8fafc;
+  letter-spacing: -0.02em;
+}
+
+.cosmo-brain__desc {
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.cosmo-brain__domains {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 800px) {
+  .cosmo-brain__domains {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .cosmo-brain__domains {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+}
+
+.cosmo-brain__domain {
+  border-radius: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.8rem;
+  transition:
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.22s ease;
+}
+
+.cosmo-brain__domain:hover {
+  transform: translateY(-2px);
+  border-color: rgba(96, 165, 250, 0.28);
+}
+
+.cosmo-brain__domain-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.cosmo-brain__domain-level {
+  margin-top: 0.35rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.cosmo-brain__domain-level--excellent { color: #34d399; }
+.cosmo-brain__domain-level--good { color: #60a5fa; }
+.cosmo-brain__domain-level--attention { color: #fbbf24; }
+.cosmo-brain__domain-level--critical { color: #f87171; }
+
+.cosmo-brain__domain-summary {
+  margin-top: 0.3rem;
+  font-size: 0.72rem;
+  color: #94a3b8;
+  line-height: 1.35;
+}
+
+.cosmo-brain__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-top: 0.85rem;
+}
+
+.cosmo-brain__item {
+  border-radius: 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(2, 6, 23, 0.28);
+  padding: 0.75rem 0.85rem;
+}
+
+.cosmo-brain__item h3 {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.cosmo-brain__item p {
+  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.cosmo-brain__tone--positive { border-left: 3px solid #34d399; }
+.cosmo-brain__tone--neutral { border-left: 3px solid #60a5fa; }
+.cosmo-brain__tone--warning { border-left: 3px solid #fbbf24; }
+.cosmo-brain__tone--critical { border-left: 3px solid #f87171; }
+
+.cosmo-brain__badge {
+  display: inline-flex;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cosmo-brain__badge--high {
+  color: #fecaca;
+  background: rgba(239, 68, 68, 0.15);
+}
+.cosmo-brain__badge--medium {
+  color: #fde68a;
+  background: rgba(245, 158, 11, 0.14);
+}
+.cosmo-brain__badge--low {
+  color: #bfdbfe;
+  background: rgba(59, 130, 246, 0.14);
+}
+
+.cosmo-brain__progress {
+  margin-top: 0.55rem;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.cosmo-brain__progress > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2563eb, #3b82f6);
+}
+
+.cosmo-brain__ask {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.cosmo-brain__ask input {
+  flex: 1;
+  min-width: 12rem;
+  height: 2.5rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(2, 6, 23, 0.35);
+  color: #f8fafc;
+  padding: 0 0.85rem;
+  outline: none;
+}
+
+.cosmo-brain__ask button,
+.cosmo-brain__chip {
+  height: 2.5rem;
+  padding: 0 0.9rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cosmo-brain__chip {
+  height: 1.9rem;
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+}
+
+.cosmo-brain__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.65rem;
+}
+
+.cosmo-brain__skeleton {
+  height: 7rem;
+  border-radius: 1rem;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03),
+    rgba(255, 255, 255, 0.07),
+    rgba(255, 255, 255, 0.03)
+  );
+  background-size: 200% 100%;
+  animation: cosmo-brain-shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes cosmo-brain-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+@media (max-width: 640px) {
+  .cosmo-brain__domains {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

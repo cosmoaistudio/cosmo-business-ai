@@ -1,0 +1,285 @@
+.cosmo-saas {
+  --saas-surface: rgba(15, 23, 42, 0.55);
+  --saas-border: rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.cosmo-saas__nav {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.cosmo-saas__nav::-webkit-scrollbar {
+  display: none;
+}
+
+.cosmo-saas__nav-btn {
+  flex: 0 0 auto;
+  height: 2.1rem;
+  padding: 0 0.85rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.03);
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cosmo-saas__nav-btn--active {
+  color: #dbeafe;
+  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(37, 99, 235, 0.2);
+}
+
+.cosmo-saas__panel {
+  border-radius: 1.125rem;
+  border: 1px solid var(--saas-border);
+  background: var(--saas-surface);
+  backdrop-filter: blur(18px);
+  padding: 1.15rem 1.2rem;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 16px 40px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.cosmo-saas__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f8fafc;
+  letter-spacing: -0.02em;
+}
+
+.cosmo-saas__desc {
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: #94a3b8;
+}
+
+.cosmo-saas__grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 720px) {
+  .cosmo-saas__grid--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cosmo-saas__grid--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cosmo-saas__grid--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .cosmo-saas__grid--4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.cosmo-saas__stat {
+  border-radius: 1rem;
+  border: 1px solid var(--saas-border);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.95rem 1rem;
+}
+
+.cosmo-saas__stat-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cosmo-saas__stat-value {
+  margin-top: 0.35rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.cosmo-saas__badge {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: rgba(148, 163, 184, 0.15);
+  color: #cbd5e1;
+}
+
+.cosmo-saas__badge--ok {
+  background: rgba(16, 185, 129, 0.18);
+  color: #6ee7b7;
+}
+
+.cosmo-saas__badge--warn {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+}
+
+.cosmo-saas__badge--down {
+  background: rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
+}
+
+.cosmo-saas__badge--blue {
+  background: rgba(59, 130, 246, 0.18);
+  color: #93c5fd;
+}
+
+.cosmo-saas__card {
+  border-radius: 1rem;
+  border: 1px solid var(--saas-border);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem;
+}
+
+.cosmo-saas__card--hl {
+  border-color: rgba(59, 130, 246, 0.45);
+  background: rgba(37, 99, 235, 0.14);
+}
+
+.cosmo-saas__meter {
+  margin-top: 0.55rem;
+  height: 0.4rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.cosmo-saas__meter-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2563eb, #38bdf8);
+}
+
+.cosmo-saas__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #93c5fd;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.cosmo-saas__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  background: rgba(37, 99, 235, 0.22);
+  color: #dbeafe;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+}
+
+.cosmo-saas__btn--ghost {
+  border-color: var(--saas-border);
+  background: rgba(255, 255, 255, 0.03);
+  color: #cbd5e1;
+}
+
+.cosmo-saas__check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cosmo-saas__check:last-child {
+  border-bottom: 0;
+}
+
+.cosmo-saas__check-box {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.35rem;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  cursor: pointer;
+  background: transparent;
+  color: #6ee7b7;
+}
+
+.cosmo-saas__check-box--done {
+  border-color: rgba(16, 185, 129, 0.5);
+  background: rgba(16, 185, 129, 0.15);
+}
+
+.cosmo-saas__feedback-fab {
+  position: fixed;
+  right: 1.1rem;
+  bottom: 1.1rem;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  align-items: flex-end;
+}
+
+@media (max-width: 719px) {
+  .cosmo-saas__feedback-fab {
+    right: 0.75rem;
+    bottom: 0.75rem;
+  }
+}
+
+.cosmo-saas__dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(2, 6, 23, 0.55);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem;
+}
+
+@media (min-width: 720px) {
+  .cosmo-saas__dialog-backdrop {
+    align-items: center;
+  }
+}
+
+.cosmo-saas__dialog {
+  width: min(480px, 100%);
+  border-radius: 1.125rem;
+  border: 1px solid var(--saas-border);
+  background: #0f172a;
+  padding: 1.15rem;
+}
+
+.cosmo-saas__field {
+  width: 100%;
+  margin-top: 0.45rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(2, 6, 23, 0.45);
+  color: #f1f5f9;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.cosmo-saas__muted {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
