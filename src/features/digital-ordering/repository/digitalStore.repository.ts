@@ -17,6 +17,7 @@ import {
   type DigitalStoreRow,
   type PublicStoreRpc,
 } from "../utils/digitalStoreMappers";
+import { validatePersistedCatalogSnapshot } from "../utils/publishCatalogGuards";
 import { normalizeStoreSlug } from "../utils/storeSlug";
 
 const CACHE_PREFIX = "cosmo:digital-store-cache:";
@@ -66,6 +67,34 @@ async function fetchStoreRow(organizationId: string): Promise<DigitalStoreRow | 
 
   if (result.error) throw result.error;
   return result.data as DigitalStoreRow | null;
+}
+
+/**
+ * Resolves the existing digital_stores row for publish/admin writes.
+ * Never inserts a new store here — that would diverge from the public slug row.
+ */
+async function resolveExistingStoreForOrganization(
+  organizationId: string,
+  expectedSlug?: string | null
+): Promise<DigitalStoreRow> {
+  const row = await fetchStoreRow(organizationId);
+  if (!row?.id) {
+    throw new Error(
+      "Loja digital não encontrada para esta organização. Salve as configurações em Pedido Digital antes de publicar."
+    );
+  }
+
+  if (expectedSlug) {
+    const expected = normalizeStoreSlug(expectedSlug);
+    const actual = normalizeStoreSlug(row.slug);
+    if (actual !== expected) {
+      throw new Error(
+        `Slug divergente: a loja no banco é "${row.slug}", mas as configurações usam "${expectedSlug}". Salve o slug e publique novamente.`
+      );
+    }
+  }
+
+  return row;
 }
 
 async function ensureStoreId(organizationId: string): Promise<string> {
@@ -120,9 +149,12 @@ export async function upsertDigitalStoreSettings(
     catalogSnapshot
   );
 
+  // defaultToNull: false — omitted columns (e.g. catalog_snapshot) must keep
+  // their existing DB values. The default true resets them to column defaults
+  // and was wiping published menus after saveSettings({ publishedAt }).
   const result = await supabase
     .from("digital_stores")
-    .upsert(payload, { onConflict: "organization_id" })
+    .upsert(payload, { onConflict: "organization_id", defaultToNull: false })
     .select("*")
     .single();
 
@@ -223,22 +255,68 @@ export async function fetchPaymentSettingsFromStore(
   return DEFAULT_DIGITAL_PAYMENT_SETTINGS;
 }
 
+export type SaveCatalogSnapshotResult = {
+  products: DigitalMenuProduct[];
+  storeId: string;
+  slug: string;
+  publishedAt: string;
+};
+
+/**
+ * Publishes the catalog onto the existing org store that must match `expectedSlug`
+ * (the same identity the public menu resolves via get_public_digital_menu).
+ */
 export async function saveCatalogSnapshotToStore(
   organizationId: string,
-  products: DigitalMenuProduct[]
-): Promise<void> {
-  const storeId = await ensureStoreId(organizationId);
+  products: DigitalMenuProduct[],
+  expectedSlug?: string | null
+): Promise<SaveCatalogSnapshotResult> {
+  if (products.length === 0) {
+    throw new Error(
+      "Nenhum produto disponível para publicar. Cadastre produtos ativos antes de publicar o cardápio."
+    );
+  }
 
+  const store = await resolveExistingStoreForOrganization(
+    organizationId,
+    expectedSlug
+  );
+  const publishedAt = new Date().toISOString();
+
+  // Pin identity: id + organization_id (+ slug match already validated)
+  // so we cannot update a divergent row and call it success.
   const result = await supabase
     .from("digital_stores")
     .update({
       catalog_snapshot: products,
-      published_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      published_at: publishedAt,
+      updated_at: publishedAt,
+      enabled: true,
     })
-    .eq("id", storeId);
+    .eq("id", store.id)
+    .eq("organization_id", organizationId)
+    .eq("slug", store.slug)
+    .select("id, slug, organization_id, catalog_snapshot, published_at")
+    .maybeSingle();
 
   if (result.error) throw result.error;
+
+  const saved = validatePersistedCatalogSnapshot({
+    expectedProductCount: products.length,
+    expectedSlug: expectedSlug ?? store.slug,
+    expectedOrganizationId: organizationId,
+    persisted: result.data,
+  });
+
+  const slug = normalizeStoreSlug(String(result.data?.slug ?? store.slug));
+  writeCache(menuCacheKey(slug), saved);
+
+  return {
+    products: saved,
+    storeId: String(result.data?.id ?? store.id),
+    slug,
+    publishedAt: String(result.data?.published_at ?? publishedAt),
+  };
 }
 
 export async function fetchPublicMenuBySlug(slug: string): Promise<DigitalMenuProduct[]> {

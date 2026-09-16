@@ -169,7 +169,10 @@ export function settingsToUpsertPayload(
   catalogSnapshot?: DigitalMenuProduct[]
 ) {
   return {
-    ...(catalogSnapshot ? { catalog_snapshot: catalogSnapshot } : {}),
+    // undefined → omit (preserve DB). Explicit [] → clear. Non-empty → write.
+    ...(catalogSnapshot !== undefined
+      ? { catalog_snapshot: catalogSnapshot }
+      : {}),
     organization_id: settings.organizationId,
     slug: normalizeStoreSlug(settings.slug),
     name: settings.organizationName,

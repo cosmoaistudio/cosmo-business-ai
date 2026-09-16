@@ -5,7 +5,8 @@ import {
   type DigitalMenuProduct,
 } from "@/features/product-engine/integrations/digitalMenu.adapter";
 import { listComboComponents } from "@/features/product-composition/repository/comboComponents.repository";
-import { getProductById } from "@/features/products/repository/products.repository";
+import { getProducts } from "@/features/products/repository/products.repository";
+import type { Product } from "@/features/products/types/product";
 import {
   fetchDigitalStoreBySlug,
   fetchDigitalStoreSettings,
@@ -28,49 +29,61 @@ import { digitalMenuExtrasFromProduct } from "../utils/digitalMenuProductExtras"
 import { buildDigitalOrderingUrl } from "../utils/qrCodeUrls";
 import { normalizeStoreSlug } from "../utils/storeSlug";
 
+/**
+ * Builds the publishable Digital Menu snapshot from the in-app catalog
+ * (product-engine nodes + products list). Does not call getProductById.
+ */
 async function buildDigitalMenuProducts(): Promise<DigitalMenuProduct[]> {
-  const nodes = await productEngine.loadCatalog();
+  const [nodes, catalogProducts] = await Promise.all([
+    productEngine.loadCatalog(),
+    getProducts(),
+  ]);
+  const productsById = new Map<string, Product>(
+    catalogProducts.map((product) => [product.id, product])
+  );
   const products: DigitalMenuProduct[] = [];
 
   for (const node of nodes) {
-    let extras: ReturnType<typeof digitalMenuExtrasFromProduct> = {};
+    let extras: ReturnType<typeof digitalMenuExtrasFromProduct> = {
+      menuKind: node.groups.length > 0 ? "assembled" : "simple",
+    };
     let comboSlots: DigitalMenuComboSlot[] | undefined;
 
-    try {
-      const product = await getProductById(node.productId);
+    const product = productsById.get(node.productId);
+    if (product) {
       extras = digitalMenuExtrasFromProduct(product);
 
       if (product.menu_kind === "combo") {
         extras.menuKind = "combo";
-        const slots = (await listComboComponents(node.productId)).filter(
-          (row) => row.active
-        );
-        comboSlots = slots.map((slot) => {
-          const childNode = nodes.find(
-            (entry) => entry.productId === slot.component_product_id
+        try {
+          const slots = (await listComboComponents(node.productId)).filter(
+            (row) => row.active
           );
-          const maxFreeHint = Math.max(
-            0,
-            ...(childNode?.groups.map((group) => group.maxFree) ?? [0])
-          );
-          return {
-            id: slot.id,
-            componentProductId: slot.component_product_id,
-            displayName:
-              slot.display_name?.trim() ||
-              slot.component_product?.name ||
-              "Componente",
-            quantity: slot.quantity,
-            allowConfiguration: slot.allow_configuration,
-            active: slot.active,
-            maxFreeHint,
-          };
-        });
+          comboSlots = slots.map((slot) => {
+            const childNode = nodes.find(
+              (entry) => entry.productId === slot.component_product_id
+            );
+            const maxFreeHint = Math.max(
+              0,
+              ...(childNode?.groups.map((group) => group.maxFree) ?? [0])
+            );
+            return {
+              id: slot.id,
+              componentProductId: slot.component_product_id,
+              displayName:
+                slot.display_name?.trim() ||
+                slot.component_product?.name ||
+                "Componente",
+              quantity: slot.quantity,
+              allowConfiguration: slot.allow_configuration,
+              active: slot.active,
+              maxFreeHint,
+            };
+          });
+        } catch {
+          comboSlots = undefined;
+        }
       }
-    } catch {
-      extras = {
-        menuKind: node.groups.length > 0 ? "assembled" : "simple",
-      };
     }
 
     products.push(
@@ -126,11 +139,32 @@ export const digitalStoreService = {
     return fetchPaymentSettingsFromStore(organizationId);
   },
 
-  async publishCatalog(organizationId: string) {
+  /**
+   * Publishes onto the org store whose slug matches `expectedSlug`
+   * (same identity as /menu/:slug). Returns only the persisted snapshot.
+   */
+  async publishCatalog(organizationId: string, expectedSlug: string) {
     const products = await buildDigitalMenuProducts();
+    if (products.length === 0) {
+      throw new Error(
+        "Nenhum produto disponível para publicar. Cadastre produtos ativos antes de publicar o cardápio."
+      );
+    }
+
+    const slug = normalizeStoreSlug(expectedSlug);
+    if (!slug) {
+      throw new Error(
+        "Slug da loja inválido. Defina o slug em Pedido Digital antes de publicar."
+      );
+    }
+
     saveDigitalMenuSnapshot(organizationId, products);
-    await saveCatalogSnapshotToStore(organizationId, products);
-    return products;
+    const persisted = await saveCatalogSnapshotToStore(
+      organizationId,
+      products,
+      slug
+    );
+    return persisted;
   },
 
   async loadMenuProducts(

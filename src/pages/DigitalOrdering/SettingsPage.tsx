@@ -41,12 +41,20 @@ export default function DigitalOrderingSettingsPage() {
   // Draft holds unsaved edits so the preview updates without a round-trip.
   const [draft, setDraft] = useState<DigitalStoreSettings | null>(null);
   const [saving, setSaving] = useState(false);
+  const dirtyRef = useRef(false);
 
   useEffect(() => {
+    if (!settings) {
+      setDraft(null);
+      return;
+    }
+    // Do not clobber in-progress edits if a late load/settings update arrives.
+    if (dirtyRef.current) return;
     setDraft(settings);
   }, [settings]);
 
   const applyPatch = useCallback((patch: Partial<DigitalStoreSettings>) => {
+    dirtyRef.current = true;
     setDraft((current) => (current ? { ...current, ...patch } : current));
   }, []);
 
@@ -54,6 +62,10 @@ export default function DigitalOrderingSettingsPage() {
     if (!draft || !settings) return false;
     return JSON.stringify(draft) !== JSON.stringify(settings);
   }, [draft, settings]);
+
+  useEffect(() => {
+    dirtyRef.current = isDirty;
+  }, [isDirty]);
 
   const previewQrCodes = useMemo(() => {
     if (!draft) return qrCodes;
@@ -64,7 +76,9 @@ export default function DigitalOrderingSettingsPage() {
     if (!draft) return;
     setSaving(true);
     try {
-      await saveSettings(draft);
+      const persisted = await saveSettings(draft);
+      dirtyRef.current = false;
+      setDraft(persisted);
       toast.success("Configurações salvas.");
     } catch (err) {
       toast.error(
@@ -85,8 +99,17 @@ export default function DigitalOrderingSettingsPage() {
 
   const handlePublish = async () => {
     try {
-      if (isDirty) await saveSettings(draft);
+      // Persist slug/settings first so publish targets the same public identity.
+      if (isDirty && draft) {
+        const persistedSettings = await saveSettings(draft);
+        dirtyRef.current = false;
+        setDraft(persistedSettings);
+      }
       const products = await publishCatalog();
+      if (products.length === 0) {
+        throw new Error("Nenhum produto foi publicado.");
+      }
+      dirtyRef.current = false;
       toast.success(`Cardápio publicado com ${products.length} produtos.`);
       await refreshAfterAction();
     } catch (err) {

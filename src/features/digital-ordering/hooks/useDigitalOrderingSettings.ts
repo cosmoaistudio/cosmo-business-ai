@@ -35,14 +35,18 @@ export function useDigitalOrderingSettings() {
     void (async () => {
       setLoading(true);
       try {
-        const loaded = await digitalStoreService.loadSettings(organizationId, organizationName);
+        // Load only — never re-upsert on mount. Re-saving here raced with user
+        // edits and could overwrite persisted niche/theme with a stale snapshot.
+        const loaded = await digitalStoreService.loadSettings(
+          organizationId,
+          organizationName
+        );
         const loadedTables = await digitalStoreService.loadTables(organizationId);
         const payment = await digitalStoreService.loadPaymentSettings(organizationId);
 
         if (cancelled) return;
 
-        const persisted = await digitalStoreService.saveSettings(loaded, payment);
-        setSettings(persisted);
+        setSettings(loaded);
         setTables(loadedTables);
         setPaymentSettings(payment);
       } catch (error) {
@@ -64,12 +68,20 @@ export function useDigitalOrderingSettings() {
 
   const saveSettings = useCallback(
     async (next: Partial<DigitalStoreSettings>) => {
-      if (!organizationId || !settings || !paymentSettings) return;
+      if (!organizationId || !settings || !paymentSettings) {
+        throw new Error(
+          "Configurações ainda não estão prontas para salvar. Aguarde o carregamento."
+        );
+      }
 
       const merged: DigitalStoreSettings = {
         ...settings,
         ...next,
         slug: normalizeStoreSlug(next.slug ?? settings.slug),
+        // Nested objects must come from `next` when provided — avoid keeping
+        // stale theme/menuTheme from the previous settings snapshot.
+        theme: next.theme ?? settings.theme,
+        menuTheme: next.menuTheme ?? settings.menuTheme,
       };
 
       const persisted = await digitalStoreService.saveSettings(
@@ -80,6 +92,7 @@ export function useDigitalOrderingSettings() {
       setSettings(persisted);
       setSaved(true);
       window.setTimeout(() => setSaved(false), 2000);
+      return persisted;
     },
     [organizationId, settings, paymentSettings, tables]
   );
@@ -114,17 +127,34 @@ export function useDigitalOrderingSettings() {
   );
 
   const publishCatalog = useCallback(async () => {
-    if (!organizationId || !settings || !paymentSettings) return [];
+    if (!organizationId || !settings || !paymentSettings) {
+      throw new Error(
+        "Configurações ainda não estão prontas para publicar. Aguarde o carregamento."
+      );
+    }
 
     setPublishing(true);
     try {
-      const products = await digitalStoreService.publishCatalog(organizationId);
-      await saveSettings({ publishedAt: new Date().toISOString() });
-      return products;
+      // Persist onto the store that matches settings.slug (public /menu/:slug).
+      // Do NOT follow with saveSettings() without the snapshot.
+      const persisted = await digitalStoreService.publishCatalog(
+        organizationId,
+        settings.slug
+      );
+      setSettings((current) =>
+        current
+          ? {
+              ...current,
+              slug: persisted.slug,
+              publishedAt: persisted.publishedAt,
+            }
+          : current
+      );
+      return persisted.products;
     } finally {
       setPublishing(false);
     }
-  }, [organizationId, settings, paymentSettings, saveSettings]);
+  }, [organizationId, settings, paymentSettings]);
 
   return {
     organizationId,
