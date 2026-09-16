@@ -42,6 +42,8 @@ export * from "./integrations/desktop.adapter";
 export * from "./integrations/mobile.adapter";
 export * from "./integrations/realtime.adapter";
 
+export * from "./menu";
+
 export * from "./utils/storeSlug";
 export * from "./utils/qrCodeUrls";
 export * from "./utils/orderTimeline";

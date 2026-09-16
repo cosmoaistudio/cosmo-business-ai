@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { beginCriticalOperation, endCriticalOperation } from "@/desktop/criticalOperation";
@@ -8,7 +7,9 @@ import { useDigitalOrderingContext } from "../context/DigitalOrderingContext";
 import { useDigitalMenu } from "../hooks/useDigitalMenu";
 import DigitalOrderingLayout from "./DigitalOrderingLayout";
 import DigitalStoreHeader from "./DigitalStoreHeader";
-import DigitalMenuGrid from "./DigitalMenuGrid";
+import CosmoDigitalMenu from "../menu/components/CosmoDigitalMenu";
+import MenuCartBar from "../menu/components/MenuCartBar";
+import { useMenuTheme } from "../menu/hooks/useMenuTheme";
 import DigitalProductSheet from "./DigitalProductSheet";
 import DigitalComboSheet from "./DigitalComboSheet";
 import DigitalCartDrawer from "./DigitalCartDrawer";
@@ -18,6 +19,7 @@ import { fetchPublicComboDefinition } from "../repository/publicCombo.repository
 import type { PaymentMethod } from "@/features/pdv/types/sale";
 import type { DigitalMenuProduct } from "@/features/product-engine/integrations/digitalMenu.adapter";
 import type { AddCartItemInput } from "@/features/pdv/types/cart";
+import { digitalCartUnitPrice } from "@/features/products/utils/productDigitalPromo";
 
 interface DigitalOrderingExperienceProps {
   mode: DigitalOrderMode;
@@ -51,6 +53,9 @@ export default function DigitalOrderingExperience({
     () => products.find((product) => product.id === comboProductId) ?? null,
     [products, comboProductId]
   );
+
+  // Called before the early return so hook order stays stable.
+  const { config: menuConfig, theme: menuTheme } = useMenuTheme(store);
 
   const editingItem = cart.getEditingItem();
 
@@ -98,9 +103,21 @@ export default function DigitalOrderingExperience({
     cart.cancelEditItem();
   }
 
+  function toDigitalCartInput(input: AddCartItemInput): AddCartItemInput {
+    const isCombo =
+      input.product.menu_kind === "combo" ||
+      (input.comboComponents?.length ?? 0) > 0;
+    if (isCombo) return input;
+
+    return {
+      ...input,
+      unitPrice: digitalCartUnitPrice(input.product, input.unitPrice),
+    };
+  }
+
   function handleAddConfigured(input: AddCartItemInput) {
     cart.addCartItem({
-      ...input,
+      ...toDigitalCartInput(input),
       replaceItemId: input.replaceItemId ?? cart.editingItemId ?? undefined,
       engineChannel: "delivery",
     });
@@ -162,48 +179,36 @@ export default function DigitalOrderingExperience({
     <DigitalOrderingLayout
       store={store}
       footer={
-        cart.itemCount > 0 ? (
-          <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-slate-950/95 p-4 backdrop-blur-xl">
-            <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
-              <div>
-                <p className="text-sm text-slate-400">{cart.itemCount} itens</p>
-                <p className="text-xl font-bold">
-                  R$ {cart.summary.total.toFixed(2).replace(".", ",")}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setCartOpen(true)}
-                className="inline-flex items-center gap-2 rounded-2xl px-6 py-4 font-semibold text-white"
-                style={{ backgroundColor: store.theme.primaryColor }}
-              >
-                <ShoppingBag className="h-5 w-5" />
-                Ver carrinho
-              </button>
-            </div>
-          </div>
-        ) : null
+        <MenuCartBar
+          itemCount={cart.itemCount}
+          total={cart.summary.total}
+          label={menuConfig.copy.viewCartLabel}
+          theme={menuTheme}
+          onOpenCart={() => setCartOpen(true)}
+        />
       }
     >
       <DigitalStoreHeader store={store} mode={mode} tableLabel={tableLabel} />
-      <DigitalMenuGrid
+      <CosmoDigitalMenu
         products={products}
         loading={loading}
+        store={store}
         onSelectProduct={(productId) => {
           const product = products.find((entry) => entry.id === productId);
           if (!product) return;
-          openProduct(product);
+          void openProduct(product);
         }}
       />
 
       <DigitalProductSheet
         productId={selectedProductId}
+        menuProduct={selectedMenuProduct}
         open={selectedProductId != null && selectedMenuProduct?.menuKind !== "combo"}
         onClose={handleCloseSheets}
         onAddToCart={(result) => {
           if (result.valid && result.cartInput) {
             cart.addCartItem({
-              ...result.cartInput,
+              ...toDigitalCartInput(result.cartInput),
               replaceItemId: cart.editingItemId ?? undefined,
               engineChannel: "delivery",
             });

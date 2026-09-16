@@ -6,7 +6,6 @@ import {
 } from "@/features/product-engine/integrations/digitalMenu.adapter";
 import { listComboComponents } from "@/features/product-composition/repository/comboComponents.repository";
 import { getProductById } from "@/features/products/repository/products.repository";
-import type { ProductMenuKind } from "@/features/products/types/product";
 import {
   fetchDigitalStoreBySlug,
   fetchDigitalStoreSettings,
@@ -24,7 +23,8 @@ import type {
   DigitalStoreTable,
 } from "../types/digitalStore.types";
 import type { DigitalPaymentSettings } from "../types/digitalPayment.types";
-import { loadCatalogSnapshot, saveCatalogSnapshot } from "../utils/catalogSnapshot";
+import { loadCatalogSnapshot, saveDigitalMenuSnapshot } from "../utils/catalogSnapshot";
+import { digitalMenuExtrasFromProduct } from "../utils/digitalMenuProductExtras";
 import { buildDigitalOrderingUrl } from "../utils/qrCodeUrls";
 import { normalizeStoreSlug } from "../utils/storeSlug";
 
@@ -33,16 +33,15 @@ async function buildDigitalMenuProducts(): Promise<DigitalMenuProduct[]> {
   const products: DigitalMenuProduct[] = [];
 
   for (const node of nodes) {
-    let menuKind: ProductMenuKind =
-      node.groups.length > 0 ? "assembled" : "simple";
-    let imageUrl: string | null = null;
+    let extras: ReturnType<typeof digitalMenuExtrasFromProduct> = {};
     let comboSlots: DigitalMenuComboSlot[] | undefined;
 
     try {
       const product = await getProductById(node.productId);
-      imageUrl = product.image_url ?? null;
+      extras = digitalMenuExtrasFromProduct(product);
+
       if (product.menu_kind === "combo") {
-        menuKind = "combo";
+        extras.menuKind = "combo";
         const slots = (await listComboComponents(node.productId)).filter(
           (row) => row.active
         );
@@ -67,15 +66,18 @@ async function buildDigitalMenuProducts(): Promise<DigitalMenuProduct[]> {
             maxFreeHint,
           };
         });
-      } else if (product.menu_kind === "simple" || product.menu_kind === "assembled") {
-        menuKind = product.menu_kind;
       }
     } catch {
-      // Sem menu_kind / slots — fallback assembled/simple pelo node
+      extras = {
+        menuKind: node.groups.length > 0 ? "assembled" : "simple",
+      };
     }
 
     products.push(
-      toDigitalMenuProduct(node, { menuKind, imageUrl, comboSlots })
+      toDigitalMenuProduct(node, {
+        ...extras,
+        comboSlots,
+      })
     );
   }
 
@@ -91,7 +93,8 @@ export const digitalStoreService = {
     settings: DigitalStoreSettings,
     paymentSettings?: DigitalPaymentSettings,
     qrCodes: DigitalQrCodeEntry[] = [],
-    catalogSnapshot: DigitalMenuProduct[] = []
+    /** Omit to keep the currently published catalog untouched. */
+    catalogSnapshot?: DigitalMenuProduct[]
   ) {
     const payment =
       paymentSettings ?? (await fetchPaymentSettingsFromStore(settings.organizationId));
@@ -124,9 +127,8 @@ export const digitalStoreService = {
   },
 
   async publishCatalog(organizationId: string) {
-    const nodes = await productEngine.loadCatalog();
     const products = await buildDigitalMenuProducts();
-    saveCatalogSnapshot(organizationId, nodes);
+    saveDigitalMenuSnapshot(organizationId, products);
     await saveCatalogSnapshotToStore(organizationId, products);
     return products;
   },
@@ -143,8 +145,7 @@ export const digitalStoreService = {
     try {
       const products = await buildDigitalMenuProducts();
       if (products.length > 0) {
-        const nodes = await productEngine.loadCatalog();
-        saveCatalogSnapshot(organizationId, nodes);
+        saveDigitalMenuSnapshot(organizationId, products);
         return products;
       }
     } catch {
@@ -161,6 +162,12 @@ export const digitalStoreService = {
   buildQrCodes(settings: DigitalStoreSettings, tables: DigitalStoreTable[]): DigitalQrCodeEntry[] {
     const slug = settings.slug;
     const entries: DigitalQrCodeEntry[] = [
+      {
+        // Main public menu — the QR a merchant puts on counters and flyers.
+        type: "menu",
+        label: "Cardápio",
+        url: buildDigitalOrderingUrl({ slug, type: "menu" }),
+      },
       {
         type: "pickup",
         label: "Retirada",

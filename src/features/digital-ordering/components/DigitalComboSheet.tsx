@@ -7,6 +7,7 @@ import type { Product } from "@/features/products/types/product";
 import type { EngineProductNode } from "@/features/product-engine/types/productEngine.types";
 import type { DigitalMenuProduct } from "@/features/product-engine/integrations/digitalMenu.adapter";
 import { fetchPublicComboDefinition } from "../repository/publicCombo.repository";
+import { resolveDigitalMenuBasePrice } from "@/features/products/utils/productDigitalPromo";
 
 interface DigitalComboSheetProps {
   menuProduct: DigitalMenuProduct | null;
@@ -93,16 +94,34 @@ export default function DigitalComboSheet({
     );
   }
 
+  const digitalBase = resolveDigitalMenuBasePrice(
+    Number(product.price),
+    product.promotionalPrice ?? menuProduct.promotionalPrice
+  );
+  const digitalProduct: Product = {
+    ...product,
+    price: digitalBase,
+    promotionalPrice:
+      product.promotionalPrice ?? menuProduct.promotionalPrice ?? null,
+  };
+
   return (
     <ComboCompositionModal
       key={`${product.id}:${definitionKey}:${editingItem?.id ?? "new"}`}
-      product={product}
+      product={digitalProduct}
       editingItem={editingItem}
       componentsLoader={componentsLoader}
       preloadedNodes={preloadedNodes}
       confirmLabel="Adicionar ao pedido"
       onClose={onClose}
-      onConfirm={onConfirm}
+      onConfirm={(input) => {
+        const paidAddons = Math.max(0, input.unitPrice - digitalBase);
+        onConfirm({
+          ...input,
+          product,
+          unitPrice: digitalBase + paidAddons,
+        });
+      }}
     />
   );
 }

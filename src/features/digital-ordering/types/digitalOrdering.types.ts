@@ -1,6 +1,6 @@
 import type { CartItem } from "@/features/pdv/types/cart";
 import type { PaymentMethod } from "@/features/pdv/types/sale";
-import type { DigitalOrderMode } from "./digitalStore.types";
+import type { DigitalOrderMode, DigitalQrCodeType } from "./digitalStore.types";
 
 export type DigitalOrderStatusStep =
   | "received"
@@ -63,6 +63,14 @@ export const DIGITAL_ORDER_STATUS_LABELS: Record<DigitalOrderStatusStep, string>
   preparing: "Preparando",
   ready: "Pronto",
   delivered: "Entregue",
+};
+
+export const DIGITAL_QR_CODE_TYPE_LABELS: Record<DigitalQrCodeType, string> = {
+  menu: "Cardápio público",
+  table: "Mesa",
+  pickup: "Retirada",
+  delivery: "Delivery",
+  event: "Evento",
 };
 
 export const DIGITAL_ORDER_MODE_LABELS: Record<DigitalOrderMode, string> = {

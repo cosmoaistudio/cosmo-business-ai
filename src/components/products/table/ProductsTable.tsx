@@ -10,6 +10,7 @@ import {
   type Product,
 } from "@/features/products";
 import { formatCurrency } from "@/lib/format";
+import { isValidPromotionalPrice } from "@/features/products/utils/productDigitalPromo";
 
 interface ProductsTableProps {
   products: Product[];
@@ -145,7 +146,29 @@ export default function ProductsTable({
               </td>
 
               <td className="font-semibold text-[var(--cosmo-text)]">
-                {formatCurrency(product.price)}
+                <div className="flex flex-col items-start gap-1">
+                  {product.featured === true ? (
+                    <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-700">
+                      Destaque
+                    </span>
+                  ) : null}
+                  {isValidPromotionalPrice(
+                    product.price,
+                    product.promotionalPrice
+                  ) ? (
+                    <>
+                      <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-rose-700">
+                        Promo
+                      </span>
+                      <span>{formatCurrency(product.promotionalPrice)}</span>
+                      <span className="text-xs font-medium text-slate-400 line-through">
+                        de {formatCurrency(product.price)}
+                      </span>
+                    </>
+                  ) : (
+                    <span>{formatCurrency(product.price)}</span>
+                  )}
+                </div>
               </td>
 
               <td>

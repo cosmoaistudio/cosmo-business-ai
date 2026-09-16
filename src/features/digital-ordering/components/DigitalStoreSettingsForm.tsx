@@ -45,39 +45,6 @@ export default function DigitalStoreSettingsForm({
           />
         </label>
 
-        <label className="block md:col-span-2">
-          <span className="mb-1 block text-sm font-medium text-slate-700">
-            Mensagem inicial
-          </span>
-          <textarea
-            value={settings.welcomeMessage}
-            onChange={(event) => onChange({ welcomeMessage: event.target.value })}
-            rows={3}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-          />
-        </label>
-
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-slate-700">
-            Logo URL
-          </span>
-          <input
-            value={settings.logoUrl ?? ""}
-            onChange={(event) => onChange({ logoUrl: event.target.value || null })}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-          />
-        </label>
-
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-slate-700">
-            Banner URL
-          </span>
-          <input
-            value={settings.bannerUrl ?? ""}
-            onChange={(event) => onChange({ bannerUrl: event.target.value || null })}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-          />
-        </label>
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
@@ -138,28 +105,6 @@ export default function DigitalStoreSettingsForm({
             className="w-full rounded-2xl border border-slate-200 px-4 py-3"
           />
         </label>
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-4">
-        {(["primaryColor", "secondaryColor", "accentColor", "backgroundColor"] as const).map(
-          (key) => (
-            <label key={key} className="block">
-              <span className="mb-1 block text-sm font-medium capitalize text-slate-700">
-                {key.replace("Color", "")}
-              </span>
-              <input
-                type="color"
-                value={settings.theme[key]}
-                onChange={(event) =>
-                  onChange({
-                    theme: { ...settings.theme, [key]: event.target.value },
-                  })
-                }
-                className="h-12 w-full rounded-2xl border border-slate-200"
-              />
-            </label>
-          )
-        )}
       </section>
 
       <section>

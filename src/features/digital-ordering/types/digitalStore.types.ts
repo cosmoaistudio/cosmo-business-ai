@@ -1,6 +1,16 @@
+import type {
+  DigitalMenuNiche,
+  MenuThemeOverrides,
+} from "../menu/types/digitalMenu.types";
+
 export type DigitalOrderMode = "dine_in" | "pickup" | "delivery" | "event";
 
-export type DigitalQrCodeType = "table" | "pickup" | "delivery" | "event";
+export type DigitalQrCodeType =
+  | "menu"
+  | "table"
+  | "pickup"
+  | "delivery"
+  | "event";
 
 export interface DigitalStoreTheme {
   primaryColor: string;
@@ -16,7 +26,13 @@ export interface DigitalStoreSettings {
   logoUrl: string | null;
   bannerUrl: string | null;
   welcomeMessage: string;
+  /** Optional promo line rendered over the banner. Persisted in the settings jsonb. */
+  bannerMessage: string | null;
   theme: DigitalStoreTheme;
+  /** Cosmo Digital Menu niche. Persisted in the existing settings jsonb. */
+  niche: DigitalMenuNiche;
+  /** Extra Digital Menu theme tokens persisted in the existing theme jsonb. */
+  menuTheme: MenuThemeOverrides;
   acceptsPickup: boolean;
   acceptsDelivery: boolean;
   acceptsDineIn: boolean;
@@ -53,7 +69,10 @@ export const DEFAULT_DIGITAL_STORE_SETTINGS: Omit<
   logoUrl: null,
   bannerUrl: null,
   welcomeMessage: "Faça seu pedido pelo celular. Rápido, fácil e sem fila.",
+  bannerMessage: null,
   theme: DEFAULT_DIGITAL_STORE_THEME,
+  niche: "generic",
+  menuTheme: {},
   acceptsPickup: true,
   acceptsDelivery: true,
   acceptsDineIn: true,

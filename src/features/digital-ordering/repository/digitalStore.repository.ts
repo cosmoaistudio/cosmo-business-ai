@@ -109,7 +109,8 @@ export async function upsertDigitalStoreSettings(
   settings: DigitalStoreSettings,
   paymentSettings: DigitalPaymentSettings,
   qrCodes: DigitalQrCodeEntry[],
-  catalogSnapshot: DigitalMenuProduct[] = []
+  /** Omit to keep the currently published catalog untouched. */
+  catalogSnapshot?: DigitalMenuProduct[]
 ): Promise<DigitalStoreSettings> {
   const normalizedSlug = normalizeStoreSlug(settings.slug);
   const payload = settingsToUpsertPayload(

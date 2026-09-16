@@ -24,9 +24,15 @@ export function buildDigitalOrderingUrl(input: {
       return `${origin}/delivery?store=${encodeURIComponent(slug)}`;
     case "event":
       return `${origin}/menu/${encodeURIComponent(slug)}?mode=event`;
+    case "menu":
     default:
-      return `${origin}/menu/${encodeURIComponent(slug)}`;
+      return buildPublicMenuUrl(slug);
   }
+}
+
+/** Canonical public menu URL — the route registered as /menu/:slug. */
+export function buildPublicMenuUrl(slug: string) {
+  return `${getAppOrigin()}/menu/${encodeURIComponent(slug)}`;
 }
 
 export function buildQrCodeImageUrl(targetUrl: string, size = 240) {

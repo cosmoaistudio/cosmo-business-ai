@@ -29,6 +29,20 @@ export interface Product {
   combo_min_choices?: number | null;
   combo_max_choices?: number | null;
 
+  /**
+   * Preço promocional visual do Cardápio Digital.
+   * Não substitui `price` no PDV nem nas RPCs de venda.
+   * Ausente em registros antigos equivale a null.
+   */
+  promotionalPrice?: number | null;
+
+  /**
+   * Destaque exclusivo do Cosmo Digital Menu.
+   * Ausente em registros antigos equivale a false.
+   * Não se relaciona com options.is_featured.
+   */
+  featured?: boolean;
+
   created_at: string;
 
   updated_at?: string;

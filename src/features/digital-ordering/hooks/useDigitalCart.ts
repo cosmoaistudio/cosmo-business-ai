@@ -8,6 +8,7 @@ import type {
 } from "@/features/pdv/types/cart";
 import { buildComboUnitSignatureKeys } from "@/features/pdv/utils/comboCartUnits";
 import { buildCartItemSignature } from "@/features/pdv/utils/compositionPricing";
+import { resolveDigitalMenuBasePrice } from "@/features/products/utils/productDigitalPromo";
 import type { DigitalCoupon } from "../types/digitalOrdering.types";
 import { digitalOrderingService } from "../services/digitalOrdering.service";
 
@@ -43,7 +44,10 @@ function createSimpleCartItem(product: Product): CartItem {
     id: crypto.randomUUID(),
     product,
     quantity: 1,
-    unitPrice: Number(product.price),
+    unitPrice: resolveDigitalMenuBasePrice(
+      Number(product.price),
+      product.promotionalPrice
+    ),
     selectedOptions: [],
     observation: "",
   };

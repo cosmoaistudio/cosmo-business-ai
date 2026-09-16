@@ -12,6 +12,8 @@ import {
   DEFAULT_DIGITAL_STORE_THEME,
 } from "../types/digitalStore.types";
 import { normalizeStoreSlug, slugFromOrganizationName } from "./storeSlug";
+import { resolveNiche } from "../menu/config/nicheConfig";
+import { parseMenuThemeOverrides } from "../menu/theme/menuTheme";
 
 interface DigitalStoreRow {
   id: string;
@@ -75,6 +77,11 @@ function parseStoreSettings(raw: Record<string, unknown> | null | undefined) {
     minimumOrder: Number(raw?.minimumOrder ?? 0),
     deliveryFee: Number(raw?.deliveryFee ?? 0),
     averagePrepMinutes: Number(raw?.averagePrepMinutes ?? 20),
+    niche: resolveNiche(raw?.niche),
+    bannerMessage:
+      typeof raw?.bannerMessage === "string" && raw.bannerMessage.trim().length > 0
+        ? raw.bannerMessage.trim()
+        : null,
     payment: (raw?.payment as DigitalPaymentSettings | undefined) ?? DEFAULT_DIGITAL_PAYMENT_SETTINGS,
   };
 }
@@ -92,7 +99,10 @@ export function mapRowToSettings(
     logoUrl: row.logo_url,
     bannerUrl: row.banner_url,
     welcomeMessage: row.welcome_message || DEFAULT_DIGITAL_STORE_SETTINGS.welcomeMessage,
+    bannerMessage: parsed.bannerMessage,
     theme: parseTheme(row.theme),
+    niche: parsed.niche,
+    menuTheme: parseMenuThemeOverrides(row.theme),
     acceptsPickup: parsed.acceptsPickup,
     acceptsDelivery: parsed.acceptsDelivery,
     acceptsDineIn: parsed.acceptsDineIn,
@@ -113,7 +123,10 @@ export function mapPublicRpcToSettings(data: PublicStoreRpc): DigitalStoreSettin
     logoUrl: data.logo_url,
     bannerUrl: data.banner_url,
     welcomeMessage: data.welcome_message || DEFAULT_DIGITAL_STORE_SETTINGS.welcomeMessage,
+    bannerMessage: parsed.bannerMessage,
     theme: parseTheme(data.theme),
+    niche: parsed.niche,
+    menuTheme: parseMenuThemeOverrides(data.theme),
     acceptsPickup: data.accepts_pickup ?? parsed.acceptsPickup,
     acceptsDelivery: data.accepts_delivery ?? parsed.acceptsDelivery,
     acceptsDineIn: data.accepts_dine_in ?? parsed.acceptsDineIn,
@@ -144,13 +157,19 @@ export function buildDefaultSettings(
   };
 }
 
+/**
+ * `catalogSnapshot` is intentionally optional: omitting the key preserves the
+ * published catalog instead of overwriting it with an empty array. New rows
+ * fall back to the column default of '[]'.
+ */
 export function settingsToUpsertPayload(
   settings: DigitalStoreSettings,
   paymentSettings: DigitalPaymentSettings,
   qrCodes: DigitalQrCodeEntry[],
-  catalogSnapshot: DigitalMenuProduct[] = []
+  catalogSnapshot?: DigitalMenuProduct[]
 ) {
   return {
+    ...(catalogSnapshot ? { catalog_snapshot: catalogSnapshot } : {}),
     organization_id: settings.organizationId,
     slug: normalizeStoreSlug(settings.slug),
     name: settings.organizationName,
@@ -158,7 +177,8 @@ export function settingsToUpsertPayload(
     logo_url: settings.logoUrl,
     banner_url: settings.bannerUrl,
     welcome_message: settings.welcomeMessage,
-    theme: settings.theme,
+    // Digital Menu tokens ride along in the same jsonb column as the legacy colors.
+    theme: { ...settings.theme, ...(settings.menuTheme ?? {}) },
     settings: {
       acceptsPickup: settings.acceptsPickup,
       acceptsDelivery: settings.acceptsDelivery,
@@ -166,10 +186,11 @@ export function settingsToUpsertPayload(
       minimumOrder: settings.minimumOrder,
       deliveryFee: settings.deliveryFee,
       averagePrepMinutes: settings.averagePrepMinutes,
+      niche: resolveNiche(settings.niche),
+      bannerMessage: settings.bannerMessage,
       payment: paymentSettings,
     },
     qr_codes: qrCodes,
-    catalog_snapshot: catalogSnapshot,
     published_at: settings.publishedAt,
     updated_at: new Date().toISOString(),
   };

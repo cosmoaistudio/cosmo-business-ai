@@ -4,11 +4,23 @@ import type { EngineProductNode } from "@/features/product-engine/types/productE
 
 const SNAPSHOT_PREFIX = "cosmo:digital-catalog:";
 
-export function saveCatalogSnapshot(organizationId: string, nodes: EngineProductNode[]) {
-  const products = nodes.map((node) => toDigitalMenuProduct(node));
+export function saveDigitalMenuSnapshot(
+  organizationId: string,
+  products: DigitalMenuProduct[]
+) {
   localStorage.setItem(
     `${SNAPSHOT_PREFIX}${organizationId}`,
     JSON.stringify({ savedAt: new Date().toISOString(), products })
+  );
+}
+
+export function saveCatalogSnapshot(
+  organizationId: string,
+  nodes: EngineProductNode[]
+) {
+  saveDigitalMenuSnapshot(
+    organizationId,
+    nodes.map((node) => toDigitalMenuProduct(node))
   );
 }
 

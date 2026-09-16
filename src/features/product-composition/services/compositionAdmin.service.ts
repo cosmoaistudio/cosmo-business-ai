@@ -64,6 +64,14 @@ function toCreatePayload(
         ? overrides.image_url
         : (source.image_url ?? null),
     status: overrides.status ?? source.status,
+    promotionalPrice:
+      overrides.promotionalPrice !== undefined
+        ? overrides.promotionalPrice
+        : (source.promotionalPrice ?? null),
+    featured:
+      overrides.featured !== undefined
+        ? overrides.featured
+        : source.featured === true,
   };
 }
 
@@ -161,6 +169,8 @@ export const compositionAdminService = {
         category: input.copyCategory ? source.category : "",
         description: input.copyDescription ? source.description : "",
         image_url: input.copyImage ? (source.image_url ?? null) : null,
+        promotionalPrice: null,
+        featured: false,
       })
     );
 

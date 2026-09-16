@@ -19,6 +19,12 @@ export interface DigitalMenuProduct {
   available: boolean;
   menuKind?: ProductMenuKind;
   imageUrl?: string | null;
+  /** Category name from products.category. Absent in snapshots published before the Digital Menu. */
+  categoryName?: string | null;
+  description?: string | null;
+  /** Only set when the products row exposes a promotional price column. */
+  promotionalPrice?: number | null;
+  featured?: boolean;
   comboSlots?: DigitalMenuComboSlot[];
   groups: Array<{
     id: string;
@@ -41,6 +47,10 @@ export interface DigitalMenuProduct {
 export type DigitalMenuProductExtras = {
   menuKind?: ProductMenuKind;
   imageUrl?: string | null;
+  categoryName?: string | null;
+  description?: string | null;
+  promotionalPrice?: number | null;
+  featured?: boolean;
   comboSlots?: DigitalMenuComboSlot[];
 };
 
@@ -80,6 +90,10 @@ export function toDigitalMenuProduct(
     available: node.status === "active",
     menuKind,
     imageUrl: extras.imageUrl ?? null,
+    categoryName: extras.categoryName ?? null,
+    description: extras.description ?? null,
+    promotionalPrice: extras.promotionalPrice ?? null,
+    featured: extras.featured ?? false,
     comboSlots: extras.comboSlots,
     groups: menuKind === "combo" ? [] : groups,
   };
