@@ -1,0 +1,128 @@
+/**
+ * Pedido Digital — motion + focus helpers.
+ * Colors come from MenuTheme CSS vars (--digital-*), not from this file.
+ */
+
+.digital-motion-press {
+  transition:
+    transform 180ms ease,
+    opacity 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.digital-motion-press:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.digital-focus-ring:focus-visible {
+  outline: 2px solid var(--digital-primary, #2563eb);
+  outline-offset: 2px;
+}
+
+.digital-sheet-enter {
+  animation: digital-sheet-in 200ms ease-out;
+}
+
+@keyframes digital-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.digital-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--digital-border, rgba(255, 255, 255, 0.12)) 0%,
+    var(--digital-surface-elevated, rgba(255, 255, 255, 0.16)) 50%,
+    var(--digital-border, rgba(255, 255, 255, 0.12)) 100%
+  );
+  background-size: 200% 100%;
+  animation: digital-skeleton-shine 1.2s ease-in-out infinite;
+}
+
+@keyframes digital-skeleton-shine {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .digital-motion-press,
+  .digital-motion-press:active:not(:disabled) {
+    transition: none;
+    transform: none;
+  }
+
+  .digital-sheet-enter {
+    animation: none;
+  }
+
+  .digital-spin,
+  .digital-skeleton {
+    animation: none !important;
+  }
+}
+
+/**
+ * ComboCompositionModal (shared with PDV) — visual skin only when wrapped
+ * by DigitalComboSheet with [data-digital-combo]. Logic unchanged.
+ */
+[data-digital-combo] .cosmo-modal {
+  background-color: var(--digital-bg) !important;
+  color: var(--digital-text) !important;
+  border: 1px solid var(--digital-border);
+  font-family: var(--digital-font);
+}
+
+[data-digital-combo] .cosmo-modal__header,
+[data-digital-combo] .cosmo-modal__footer {
+  border-color: var(--digital-border) !important;
+}
+
+[data-digital-combo] .cosmo-modal__title {
+  color: var(--digital-text) !important;
+  font-family: var(--digital-font-heading);
+}
+
+[data-digital-combo] .text-slate-900,
+[data-digital-combo] .text-slate-800,
+[data-digital-combo] .text-slate-700 {
+  color: var(--digital-text) !important;
+}
+
+[data-digital-combo] .text-slate-600,
+[data-digital-combo] .text-slate-500,
+[data-digital-combo] .text-slate-400 {
+  color: var(--digital-muted) !important;
+}
+
+[data-digital-combo] .border-slate-200,
+[data-digital-combo] .border-slate-100 {
+  border-color: var(--digital-border) !important;
+}
+
+[data-digital-combo] .bg-slate-50,
+[data-digital-combo] .bg-white {
+  background-color: var(--digital-surface) !important;
+}
+
+[data-digital-combo] .bg-blue-600,
+[data-digital-combo] .bg-slate-900 {
+  background-color: var(--digital-primary) !important;
+}
+
+[data-digital-combo] .text-blue-700,
+[data-digital-combo] .text-violet-700 {
+  color: var(--digital-primary) !important;
+}
+

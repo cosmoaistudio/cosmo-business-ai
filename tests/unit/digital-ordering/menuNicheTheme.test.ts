@@ -33,6 +33,8 @@ function storeSettings(
     theme: DEFAULT_DIGITAL_STORE_THEME,
     niche: "generic",
     menuTheme: {},
+    menuCopy: {},
+    menuFeatures: {},
     acceptsPickup: true,
     acceptsDelivery: true,
     acceptsDineIn: true,
@@ -63,7 +65,32 @@ describe("niche registry", () => {
 
   it("recognises known niches", () => {
     expect(isDigitalMenuNiche("pizzaria")).toBe(true);
+    expect(isDigitalMenuNiche("sushi")).toBe(true);
+    expect(isDigitalMenuNiche("barbearia")).toBe(true);
     expect(isDigitalMenuNiche("sushi-bar")).toBe(false);
+  });
+
+  it("covers the multi-niche platform registry", () => {
+    const ids = listNiches().map((entry) => entry.niche);
+    for (const required of [
+      "acai",
+      "hamburgueria",
+      "pizzaria",
+      "sushi",
+      "adega",
+      "cafeteria",
+      "doceria",
+      "sorveteria",
+      "restaurante",
+      "lanchonete",
+      "pastelaria",
+      "marmitaria",
+      "barbearia",
+      "varejo",
+      "servicos",
+    ] as const) {
+      expect(ids).toContain(required);
+    }
   });
 
   it("always resolves a complete config regardless of the niche", () => {
@@ -110,6 +137,13 @@ describe("appearanceFromNiche", () => {
 
   it("uses list layout as the starting point for adega", () => {
     expect(appearanceFromNiche("adega").menuTheme.productLayout).toBe("list");
+  });
+
+  it("seeds barbearia without product images by default", () => {
+    expect(appearanceFromNiche("barbearia").menuTheme.showProductImages).toBe(
+      false
+    );
+    expect(getNicheConfig("barbearia").theme.showProductImages).toBe(false);
   });
 });
 
@@ -164,6 +198,22 @@ describe("theme serialization", () => {
 
     expect(vars["--menu-primary"]).toBe(DEFAULT_MENU_THEME.primaryColor);
     expect(vars["--menu-card-radius"]).toBe(radiusToCss(DEFAULT_MENU_THEME.cardRadius));
+    expect(vars["--digital-primary"]).toBe(DEFAULT_MENU_THEME.primaryColor);
+    expect(vars["--digital-bg"]).toBe(DEFAULT_MENU_THEME.backgroundColor);
+    expect(vars["--digital-radius-button"]).toBe(
+      radiusToCss(DEFAULT_MENU_THEME.buttonRadius)
+    );
+  });
+
+  it("derives distinct palettes for acai, cafeteria and sushi niches", () => {
+    const acai = resolveMenuTheme(null, getNicheConfig("acai"));
+    const cafeteria = resolveMenuTheme(null, getNicheConfig("cafeteria"));
+    const sushi = resolveMenuTheme(null, getNicheConfig("sushi"));
+
+    expect(acai.primaryColor).not.toBe(cafeteria.primaryColor);
+    expect(cafeteria.primaryColor).not.toBe(sushi.primaryColor);
+    expect(menuThemeToCssVars(acai)["--digital-primary"]).toBe(acai.primaryColor);
+    expect(menuThemeToCssVars(sushi)["--digital-primary"]).toBe(sushi.primaryColor);
   });
 
   it("parses persisted overrides and ignores invalid values", () => {

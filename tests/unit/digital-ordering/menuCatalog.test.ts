@@ -41,6 +41,19 @@ describe("normalizeSearchTerm", () => {
   });
 });
 
+describe("categoryIdFromLabel", () => {
+  it("keeps a normal category on its current id", () => {
+    expect(categoryIdFromLabel("Açaí")).toBe("acai");
+    expect(categoryIdFromLabel("Combos")).toBe("combos");
+  });
+
+  it("does not assign the reserved featured id to a real category", () => {
+    expect(categoryIdFromLabel("featured")).not.toBe("featured");
+    expect(categoryIdFromLabel("Featured")).toBe("__featured_category__");
+    expect(categoryIdFromLabel("FEATURÉD")).toBe("__featured_category__");
+  });
+});
+
 describe("resolveProductPrice", () => {
   it("uses base price when there is no promotion", () => {
     const price = resolveProductPrice(product({ basePrice: 25 }));
@@ -323,5 +336,18 @@ describe("buildMenuCatalog", () => {
         categoryId: ALL_CATEGORY_ID,
       }).categories
     ).toEqual([]);
+  });
+
+  it("keeps filter mode: empty sections and category still hides products", () => {
+    const result = buildMenuCatalog(catalog, GENERIC, {
+      search: "",
+      categoryId: categoryIdFromLabel("Bebidas"),
+    });
+
+    expect(GENERIC.features.catalogNavigation).toBe("filter");
+    expect(result.sections).toEqual([]);
+    expect(result.isFiltered).toBe(true);
+    expect(result.products.map((entry) => entry.id)).toEqual(["b"]);
+    expect(result.highlights).toEqual([]);
   });
 });

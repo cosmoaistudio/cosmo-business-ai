@@ -6,6 +6,7 @@ interface MenuHighlightsProps {
   products: DigitalMenuProduct[];
   theme: MenuTheme;
   copy: NicheCopy;
+  showImages?: boolean;
   onSelectProduct: (productId: string) => void;
 }
 
@@ -13,12 +14,13 @@ export default function MenuHighlights({
   products,
   theme,
   copy,
+  showImages = true,
   onSelectProduct,
 }: MenuHighlightsProps) {
   if (products.length === 0) return null;
 
   return (
-    <section aria-label={copy.highlightsTitle}>
+    <section aria-label={copy.highlightsTitle} data-menu-highlights="carousel">
       <h2
         className="mb-3 text-sm font-semibold uppercase tracking-wide"
         style={{ color: theme.mutedTextColor }}
@@ -34,6 +36,7 @@ export default function MenuHighlights({
               product={product}
               theme={theme}
               variant="highlight"
+              showImage={showImages}
               addLabel={copy.addToCartLabel}
               customizableLabel={copy.customizableLabel}
               onSelect={() => onSelectProduct(product.id)}

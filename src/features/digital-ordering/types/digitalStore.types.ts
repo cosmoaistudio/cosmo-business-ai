@@ -1,7 +1,10 @@
 import type {
   DigitalMenuNiche,
   MenuThemeOverrides,
+  NicheCopy,
+  NicheFeatures,
 } from "../menu/types/digitalMenu.types";
+import type { MenuTemplateId } from "../menu/types/menuTemplate.types";
 
 export type DigitalOrderMode = "dine_in" | "pickup" | "delivery" | "event";
 
@@ -19,6 +22,12 @@ export interface DigitalStoreTheme {
   backgroundColor: string;
 }
 
+/** Store-level copy overrides. Empty/omitted keys fall back to niche defaults. */
+export type DigitalMenuCopyOverrides = Partial<NicheCopy>;
+
+/** Store-level feature overrides. Empty/omitted keys fall back to niche defaults. */
+export type DigitalMenuFeatureOverrides = Partial<NicheFeatures>;
+
 export interface DigitalStoreSettings {
   slug: string;
   organizationId: string;
@@ -33,6 +42,21 @@ export interface DigitalStoreSettings {
   niche: DigitalMenuNiche;
   /** Extra Digital Menu theme tokens persisted in the existing theme jsonb. */
   menuTheme: MenuThemeOverrides;
+  /**
+   * Optional copy overrides (search placeholder, CTA labels, etc.).
+   * Persisted in settings jsonb — only customized keys are stored.
+   */
+  menuCopy: DigitalMenuCopyOverrides;
+  /**
+   * Optional feature overrides (highlights, images, etc.).
+   * Persisted in settings jsonb — only customized keys are stored.
+   */
+  menuFeatures: DigitalMenuFeatureOverrides;
+  /**
+   * Commercial template id (açaí, sushi, barbearia…).
+   * Persisted in settings jsonb — no migration. Falls back to niche mapping.
+   */
+  menuTemplateId?: MenuTemplateId | null;
   acceptsPickup: boolean;
   acceptsDelivery: boolean;
   acceptsDineIn: boolean;
@@ -73,6 +97,9 @@ export const DEFAULT_DIGITAL_STORE_SETTINGS: Omit<
   theme: DEFAULT_DIGITAL_STORE_THEME,
   niche: "generic",
   menuTheme: {},
+  menuCopy: {},
+  menuFeatures: {},
+  menuTemplateId: "generic",
   acceptsPickup: true,
   acceptsDelivery: true,
   acceptsDineIn: true,

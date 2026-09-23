@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
+import "./features/digital-ordering/styles/digital-ordering.css";
 import App from "./App.tsx";
 import { notifyDesktopVisualReady } from "@/lib/notifyDesktopVisualReady";
 

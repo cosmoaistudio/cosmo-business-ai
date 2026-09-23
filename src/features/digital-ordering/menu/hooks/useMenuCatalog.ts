@@ -28,11 +28,20 @@ export function useMenuCatalog({
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState(ALL_CATEGORY_ID);
 
-  const { config, theme } = useMenuTheme(store, niche, themeOverrides);
+  const { config, theme, copy, features, showProductImages } = useMenuTheme(
+    store,
+    niche,
+    themeOverrides
+  );
 
   const catalog = useMemo(
-    () => buildMenuCatalog(products, config, { search, categoryId }),
-    [products, config, search, categoryId]
+    () =>
+      buildMenuCatalog(
+        products,
+        { ...config, copy, features },
+        { search, categoryId }
+      ),
+    [products, config, copy, features, search, categoryId]
   );
 
   // A category can disappear when the catalog reloads.
@@ -43,8 +52,9 @@ export function useMenuCatalog({
   }, [catalog.categories, categoryId]);
 
   return {
-    config,
+    config: { ...config, copy, features },
     theme,
+    showProductImages,
     catalog,
     search,
     activeCategoryId,

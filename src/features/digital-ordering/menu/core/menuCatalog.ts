@@ -1,7 +1,10 @@
 import type { DigitalMenuProduct } from "@/features/product-engine/integrations/digitalMenu.adapter";
 import { isValidPromotionalPrice } from "@/features/products/utils/productDigitalPromo";
+import { sanitizeCategorySectionId } from "./menuSectionNav";
 import type {
   MenuCatalog,
+  MenuCatalogNavigation,
+  MenuCatalogSection,
   MenuCatalogState,
   MenuCategory,
   MenuProductPrice,
@@ -23,7 +26,8 @@ export function normalizeSearchTerm(value: string): string {
 
 export function categoryIdFromLabel(label: string): string {
   const normalized = normalizeSearchTerm(label);
-  return normalized.length > 0 ? normalized : UNCATEGORIZED_ID;
+  const id = normalized.length > 0 ? normalized : UNCATEGORIZED_ID;
+  return sanitizeCategorySectionId(id);
 }
 
 function productCategoryLabel(product: DigitalMenuProduct): string {
@@ -148,6 +152,51 @@ export function filterMenuProducts(
   });
 }
 
+export function resolveCatalogNavigation(
+  value: MenuCatalogNavigation | null | undefined
+): MenuCatalogNavigation {
+  return value === "sections" ? "sections" : "filter";
+}
+
+/** Tabs/aside omit the synthetic "Tudo" chip in sections mode. */
+export function listNavigableCategories(
+  categories: MenuCategory[],
+  navigation: MenuCatalogNavigation
+): MenuCategory[] {
+  if (navigation !== "sections") return categories;
+  return categories.filter((category) => category.id !== ALL_CATEGORY_ID);
+}
+
+/**
+ * Groups already-filtered products into on-page sections.
+ * Empty categories are omitted so search hides groups without matches.
+ * Product objects are reused — never cloned.
+ */
+export function buildMenuSections(
+  products: DigitalMenuProduct[],
+  categories: MenuCategory[]
+): MenuCatalogSection[] {
+  const byId = new Map<string, DigitalMenuProduct[]>();
+
+  for (const product of products) {
+    const id = categoryIdFromLabel(productCategoryLabel(product));
+    const existing = byId.get(id);
+    if (existing) {
+      existing.push(product);
+      continue;
+    }
+    byId.set(id, [product]);
+  }
+
+  return listNavigableCategories(categories, "sections")
+    .map((category) => ({
+      categoryId: category.id,
+      categoryName: category.label,
+      products: byId.get(category.id) ?? [],
+    }))
+    .filter((section) => section.products.length > 0);
+}
+
 /**
  * Explicitly featured products first, then active promotions when the niche
  * allows it. Never invents highlights — returns empty when there is no signal.
@@ -177,18 +226,42 @@ export function buildMenuCatalog(
   config: NicheConfig,
   state: MenuCatalogState
 ): MenuCatalog {
+  const navigation = resolveCatalogNavigation(config.features.catalogNavigation);
   const available = listAvailableProducts(products);
-  const filtered = filterMenuProducts(products, state);
+  const searchTerm = normalizeSearchTerm(state.search);
+  const categoryId =
+    navigation === "sections"
+      ? ALL_CATEGORY_ID
+      : state.categoryId || ALL_CATEGORY_ID;
+  const filtered = filterMenuProducts(products, {
+    search: state.search,
+    categoryId,
+  });
   const isFiltered =
-    normalizeSearchTerm(state.search).length > 0 ||
-    (state.categoryId !== ALL_CATEGORY_ID && state.categoryId !== "");
+    searchTerm.length > 0 ||
+    (navigation === "filter" &&
+      state.categoryId !== ALL_CATEGORY_ID &&
+      state.categoryId !== "");
+
+  const groupedCategories = buildMenuCategories(
+    navigation === "sections" && searchTerm.length > 0 ? filtered : products,
+    config
+  );
+  const categories = config.features.showCategoryTabs ? groupedCategories : [];
 
   return {
-    categories: config.features.showCategoryTabs
-      ? buildMenuCategories(products, config)
-      : [],
+    categories,
     products: filtered,
-    highlights: isFiltered ? [] : buildMenuHighlights(products, config),
+    sections:
+      navigation === "sections"
+        ? buildMenuSections(filtered, groupedCategories)
+        : [],
+    highlights:
+      navigation === "sections"
+        ? buildMenuHighlights(filtered, config)
+        : isFiltered
+          ? []
+          : buildMenuHighlights(products, config),
     totalAvailable: available.length,
     isFiltered,
     isEmpty: filtered.length === 0,
