@@ -2,6 +2,7 @@ import {
   useEffect,
   useId,
   useRef,
+  type CSSProperties,
   type MouseEvent,
   type ReactNode,
 } from "react";
@@ -19,6 +20,8 @@ type AppSheetProps = {
   placement?: AppSheetPlacement;
   /** Panel surface classes (keeps consumer visual identity). */
   panelClassName?: string;
+  /** Optional inline styles (e.g. MenuTheme tokens). */
+  panelStyle?: CSSProperties;
   closeOnBackdrop?: boolean;
   closeOnEsc?: boolean;
   /** Accessible label for close control. */
@@ -37,6 +40,34 @@ const PLACEMENT_PANEL: Record<AppSheetPlacement, string> = {
   bottom: "max-h-[92vh] w-full max-w-lg rounded-t-3xl sm:rounded-3xl",
 };
 
+const FOCUSABLE_SELECTOR = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled]):not([type='hidden'])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  "[tabindex]:not([tabindex='-1'])",
+].join(",");
+
+function isFocusableCandidate(element: HTMLElement): boolean {
+  if (element.hasAttribute("disabled")) return false;
+  if (element.getAttribute("aria-hidden") === "true") return false;
+  const style = window.getComputedStyle(element);
+  return style.display !== "none" && style.visibility !== "hidden";
+}
+
+function getFocusableElements(container: HTMLElement): HTMLElement[] {
+  return Array.from(
+    container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+  ).filter(isFocusableCandidate);
+}
+
+function restoreFocus(trigger: HTMLElement | null) {
+  if (trigger?.isConnected) {
+    trigger.focus();
+  }
+}
+
 /**
  * Shared sheet/drawer shell for overlays that are not AppModal dialogs.
  * Sticky header with X, ESC, backdrop, body scroll, optional footer.
@@ -49,35 +80,77 @@ export default function AppSheet({
   footer,
   placement = "center",
   panelClassName = "bg-white text-slate-900 shadow-2xl",
+  panelStyle,
   closeOnBackdrop = true,
   closeOnEsc = true,
   closeLabel = "Fechar",
 }: AppSheetProps) {
   const titleId = useId();
   const closeRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (!open || !closeOnEsc) return;
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      event.preventDefault();
-      onClose();
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, closeOnEsc, onClose]);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!open) return;
-    const previous = document.body.style.overflow;
+
+    const active = document.activeElement;
+    triggerRef.current =
+      active instanceof HTMLElement && active !== document.body ? active : null;
+
+    const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    closeRef.current?.focus();
-    return () => {
-      document.body.style.overflow = previous;
+
+    const panel = panelRef.current;
+    if (closeRef.current) {
+      closeRef.current.focus();
+    } else if (panel) {
+      const focusable = getFocusableElements(panel);
+      (focusable[0] ?? panel).focus();
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        if (!closeOnEsc) return;
+        event.preventDefault();
+        onClose();
+        return;
+      }
+
+      if (event.key !== "Tab" || !panel) return;
+
+      const focusable = getFocusableElements(panel);
+      if (focusable.length === 0) {
+        event.preventDefault();
+        panel.focus();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const current = document.activeElement;
+      const inside = current instanceof Node && panel.contains(current);
+
+      if (event.shiftKey && (!inside || current === first)) {
+        event.preventDefault();
+        last.focus();
+        return;
+      }
+
+      if (!event.shiftKey && (!inside || current === last)) {
+        event.preventDefault();
+        first.focus();
+      }
     };
-  }, [open]);
+
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown, true);
+      document.body.style.overflow = previousOverflow;
+      const trigger = triggerRef.current;
+      triggerRef.current = null;
+      restoreFocus(trigger);
+    };
+  }, [open, closeOnEsc, onClose]);
 
   useRegisterOverlay(open);
 
@@ -95,10 +168,13 @@ export default function AppSheet({
       role="presentation"
     >
       <div
+        ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
+        tabIndex={-1}
         className={`flex flex-col overflow-hidden ${PLACEMENT_PANEL[placement]} ${panelClassName}`}
+        style={panelStyle}
         onMouseDown={(event) => event.stopPropagation()}
       >
         <header className="flex shrink-0 items-center justify-between gap-3 border-b border-current/10 px-5 py-4">
@@ -109,7 +185,7 @@ export default function AppSheet({
             ref={closeRef}
             type="button"
             onClick={onClose}
-            className="rounded-full p-2 opacity-70 transition hover:bg-black/5 hover:opacity-100"
+            className="digital-focus-ring rounded-full p-2 opacity-70 transition hover:bg-current/10 hover:opacity-100"
             aria-label={closeLabel}
           >
             <X className="h-5 w-5" />
