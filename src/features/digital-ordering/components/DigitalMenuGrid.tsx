@@ -146,7 +146,9 @@ export default function DigitalMenuGrid({
           style={{ color: theme.mutedTextColor }}
           aria-hidden
         />
-        <p className="max-w-sm text-sm">{emptyMessage}</p>
+        <p className="max-w-sm text-sm" role="status" aria-live="polite">
+          {emptyMessage}
+        </p>
         {onRetry ? (
           <button
             type="button"

@@ -25,13 +25,38 @@ const DEMO_COUPONS: DigitalCoupon[] = [
   { code: "BEMVINDO", type: "fixed", value: 5, label: "R$ 5 off" },
 ];
 
+function formatDeliveryAddressForObservation(
+  address: DigitalOrderContext["deliveryAddress"]
+): string | null {
+  if (address == null) return null;
+  if (typeof address === "string") {
+    const trimmed = address.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+
+  const bits = [
+    address.street,
+    address.number ? `nº ${address.number}` : null,
+    address.complement,
+    address.neighborhood,
+    [address.city, address.state].filter(Boolean).join(" - "),
+    address.cep ? `CEP ${address.cep}` : null,
+    address.reference ? `Ref: ${address.reference}` : null,
+  ]
+    .map((part) => (typeof part === "string" ? part.trim() : ""))
+    .filter(Boolean);
+
+  return bits.length > 0 ? bits.join(", ") : null;
+}
+
 function buildContextObservation(context: DigitalOrderContext) {
   const parts = [`Pedido Digital — ${DIGITAL_ORDER_MODE_LABELS[context.mode]}`];
 
   if (context.tableLabel) parts.push(`Mesa: ${context.tableLabel}`);
   if (context.customerName) parts.push(`Cliente: ${context.customerName}`);
   if (context.customerPhone) parts.push(`Tel: ${context.customerPhone}`);
-  if (context.deliveryAddress) parts.push(`Endereço: ${context.deliveryAddress}`);
+  const addressLine = formatDeliveryAddressForObservation(context.deliveryAddress);
+  if (addressLine) parts.push(`Endereço: ${addressLine}`);
 
   return parts.join(" | ");
 }
@@ -60,22 +85,17 @@ function mapCartItemsToRpc(items: CartItem[]) {
 }
 
 export const digitalOrderingService = {
-  validateCoupon(code: string, subtotal: number) {
-    const normalized = code.trim().toUpperCase();
-    const coupon = DEMO_COUPONS.find((entry) => entry.code === normalized);
-    if (!coupon) {
-      return { valid: false as const, error: "Cupom inválido." };
-    }
-
-    const discount =
-      coupon.type === "percent"
-        ? Math.round(subtotal * (coupon.value / 100) * 100) / 100
-        : coupon.value;
-
+  /**
+   * Cupons públicos desativados até validação server-side.
+   * Mantém a API para a UI futura; nunca aplica desconto no checkout.
+   */
+  validateCoupon(_code: string, _subtotal: number) {
+    void _code;
+    void _subtotal;
+    void DEMO_COUPONS;
     return {
-      valid: true as const,
-      coupon,
-      discount: Math.min(discount, subtotal),
+      valid: false as const,
+      error: "Cupons promocionais estarão disponíveis em breve.",
     };
   },
 
@@ -87,12 +107,13 @@ export const digitalOrderingService = {
   async placeOrder(input: DigitalCheckoutInput) {
     const observation = mergeObservations(input.observation ?? "", input.context);
 
+    // Sem cupom server-side: nunca envia desconto; paymentAmount = total UI.
     const result = await placePublicDigitalOrder({
       storeSlug: input.storeSlug,
       items: mapCartItemsToRpc(input.items),
       paymentMethod: input.paymentMethod,
-      paymentAmount: input.paymentAmount,
-      discount: input.discount,
+      paymentAmount: Number(input.paymentAmount),
+      discount: 0,
       observation,
       context: input.context as unknown as Record<string, unknown>,
     });

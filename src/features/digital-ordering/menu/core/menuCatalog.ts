@@ -1,6 +1,9 @@
 import type { DigitalMenuProduct } from "@/features/product-engine/integrations/digitalMenu.adapter";
 import { isValidPromotionalPrice } from "@/features/products/utils/productDigitalPromo";
-import { sanitizeCategorySectionId } from "./menuSectionNav";
+import {
+  sanitizeCategorySectionId,
+  slugifyCategorySectionId,
+} from "./menuSectionNav";
 import type {
   MenuCatalog,
   MenuCatalogNavigation,
@@ -25,8 +28,8 @@ export function normalizeSearchTerm(value: string): string {
 }
 
 export function categoryIdFromLabel(label: string): string {
-  const normalized = normalizeSearchTerm(label);
-  const id = normalized.length > 0 ? normalized : UNCATEGORIZED_ID;
+  const slug = slugifyCategorySectionId(normalizeSearchTerm(label));
+  const id = slug.length > 0 ? slug : UNCATEGORIZED_ID;
   return sanitizeCategorySectionId(id);
 }
 

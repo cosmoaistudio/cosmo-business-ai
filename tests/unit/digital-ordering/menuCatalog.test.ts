@@ -52,6 +52,25 @@ describe("categoryIdFromLabel", () => {
     expect(categoryIdFromLabel("Featured")).toBe("__featured_category__");
     expect(categoryIdFromLabel("FEATURÉD")).toBe("__featured_category__");
   });
+
+  it("slugifies spaces, accents and punctuation into stable ids", () => {
+    expect(categoryIdFromLabel("Milk Shake")).toBe("milk-shake");
+    expect(categoryIdFromLabel("Monte seu açaí")).toBe("monte-seu-acai");
+    expect(categoryIdFromLabel("Barcas / Especiais")).toBe("barcas-especiais");
+    expect(categoryIdFromLabel("100% Natural!!!")).toBe("100-natural");
+  });
+
+  it("collapses labels that slug to the same id", () => {
+    expect(categoryIdFromLabel("Milk Shake")).toBe(
+      categoryIdFromLabel("milk-shake")
+    );
+    expect(categoryIdFromLabel("Milk  Shake")).toBe("milk-shake");
+  });
+
+  it("uses Outros when the label has no usable characters", () => {
+    expect(categoryIdFromLabel("!!!")).toBe("__uncategorized__");
+    expect(categoryIdFromLabel("   ")).toBe("__uncategorized__");
+  });
 });
 
 describe("resolveProductPrice", () => {

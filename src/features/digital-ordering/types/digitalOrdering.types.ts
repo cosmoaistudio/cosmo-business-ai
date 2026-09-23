@@ -16,13 +16,29 @@ export interface DigitalCoupon {
   label: string;
 }
 
+/** Endereço estruturado persistido em sales.delivery_address (033/034). */
+export interface DigitalDeliveryAddress {
+  cep?: string;
+  street: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
+  city?: string;
+  state?: string;
+  reference?: string;
+}
+
 export interface DigitalOrderContext {
   mode: DigitalOrderMode;
   tableId?: string;
   tableLabel?: string;
   customerName?: string;
   customerPhone?: string;
-  deliveryAddress?: string;
+  /**
+   * B1: string livre (checkout atual).
+   * B2: objeto estruturado. A RPC 033 aceita ambos.
+   */
+  deliveryAddress?: string | DigitalDeliveryAddress;
 }
 
 export interface DigitalPlacedOrder {

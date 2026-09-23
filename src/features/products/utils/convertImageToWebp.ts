@@ -20,15 +20,16 @@ function loadImageFromFile(file: File): Promise<HTMLImageElement> {
   });
 }
 
-function computeTargetDimensions(width: number, height: number) {
-  if (width <= PRODUCT_IMAGE_MAX_DIMENSION && height <= PRODUCT_IMAGE_MAX_DIMENSION) {
+function computeTargetDimensions(
+  width: number,
+  height: number,
+  maxDimension = PRODUCT_IMAGE_MAX_DIMENSION
+) {
+  if (width <= maxDimension && height <= maxDimension) {
     return { width, height };
   }
 
-  const scale = Math.min(
-    PRODUCT_IMAGE_MAX_DIMENSION / width,
-    PRODUCT_IMAGE_MAX_DIMENSION / height
-  );
+  const scale = Math.min(maxDimension / width, maxDimension / height);
 
   return {
     width: Math.max(1, Math.round(width * scale)),
@@ -53,11 +54,15 @@ function canvasToWebpBlob(canvas: HTMLCanvasElement): Promise<Blob> {
   });
 }
 
-export async function convertImageToWebp(file: File): Promise<Blob> {
+export async function convertImageToWebp(
+  file: File,
+  options?: { maxDimension?: number }
+): Promise<Blob> {
   const image = await loadImageFromFile(file);
   const { width, height } = computeTargetDimensions(
     image.naturalWidth,
-    image.naturalHeight
+    image.naturalHeight,
+    options?.maxDimension
   );
 
   const canvas = document.createElement("canvas");

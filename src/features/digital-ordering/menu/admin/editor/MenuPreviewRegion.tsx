@@ -43,7 +43,7 @@ export default function MenuPreviewRegion({
       data-preview-select={id}
       role="group"
       aria-label={`Selecionar ${label}`}
-      aria-selected={selected}
+      aria-current={selected ? "true" : undefined}
       tabIndex={0}
       onClickCapture={onClickCapture}
       onKeyDown={onKeyDown}

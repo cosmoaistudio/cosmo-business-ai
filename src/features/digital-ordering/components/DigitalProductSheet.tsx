@@ -9,7 +9,14 @@ import type { ComposerConfirmResult } from "@/features/product-engine/integratio
 import type { DigitalMenuProduct } from "@/features/product-engine/integrations/digitalMenu.adapter";
 import type { EngineProductNode } from "@/features/product-engine/types/productEngine.types";
 import { resolveDigitalMenuBasePrice } from "@/features/products/utils/productDigitalPromo";
+import type { MenuTheme } from "../menu/types/digitalMenu.types";
+import {
+  DEFAULT_MENU_THEME,
+  radiusToCss,
+  sheetPanelStyle,
+} from "../menu/theme/menuTheme";
 import { composerInputFromDigitalMenuProduct } from "../utils/digitalMenuComposerBridge";
+import MenuPreviewRegion from "../menu/admin/editor/MenuPreviewRegion";
 
 interface DigitalProductSheetProps {
   productId: string | null;
@@ -18,33 +25,99 @@ interface DigitalProductSheetProps {
   open: boolean;
   onClose: () => void;
   onAddToCart: (result: ComposerConfirmResult) => void;
+  theme?: MenuTheme;
 }
 
 /**
  * Image and description live here rather than inside ProductComposerView,
  * which is shared with the PDV and must keep its current layout.
  */
-function ProductHero({ product }: { product: Product }) {
+function ProductHero({
+  product,
+  theme,
+  displayPrice,
+  promotionalPrice,
+}: {
+  product: Product;
+  theme: MenuTheme;
+  displayPrice: number;
+  promotionalPrice: number | null;
+}) {
   const imageUrl = product.image_url ?? product.image ?? null;
   const description = product.description?.trim();
-
-  if (!imageUrl && !description) return null;
+  const hasPromo =
+    promotionalPrice != null &&
+    Number.isFinite(promotionalPrice) &&
+    promotionalPrice < displayPrice;
 
   return (
-    <div className="mb-4">
-      {imageUrl && (
+    <div className="mb-5 space-y-3 digital-sheet-enter">
+      {imageUrl ? (
         <img
           src={imageUrl}
           alt={product.name}
           loading="lazy"
           decoding="async"
-          className="mb-3 h-44 w-full rounded-2xl object-cover sm:h-52"
+          className="h-48 w-full object-cover sm:h-56"
+          style={{
+            borderRadius: radiusToCss(theme.cardRadius),
+            boxShadow: `var(--digital-shadow, none)`,
+          }}
         />
-      )}
+      ) : null}
 
-      {description && (
-        <p className="text-sm leading-relaxed text-slate-600">{description}</p>
-      )}
+      <h2
+        className="text-xl font-bold tracking-tight sm:text-2xl"
+        style={{
+          fontFamily: theme.headingFontFamily,
+          color: theme.textColor,
+        }}
+      >
+        {product.name}
+      </h2>
+
+      {description ? (
+        <p
+          className="text-sm leading-relaxed"
+          style={{ color: theme.mutedTextColor }}
+        >
+          {description}
+        </p>
+      ) : null}
+
+      <div className="flex flex-wrap items-baseline gap-2">
+        <p
+          className="text-2xl font-bold tabular-nums"
+          style={{ color: theme.primaryColor }}
+        >
+          {new Intl.NumberFormat("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }).format(hasPromo ? promotionalPrice! : displayPrice)}
+        </p>
+        {hasPromo ? (
+          <>
+            <p
+              className="text-sm line-through tabular-nums"
+              style={{ color: theme.mutedTextColor }}
+            >
+              {new Intl.NumberFormat("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              }).format(displayPrice)}
+            </p>
+            <span
+              className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+              style={{
+                backgroundColor: theme.accentColor,
+                color: "#fff",
+              }}
+            >
+              Promoção
+            </span>
+          </>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -55,6 +128,7 @@ export default function DigitalProductSheet({
   open,
   onClose,
   onAddToCart,
+  theme = DEFAULT_MENU_THEME,
 }: DigitalProductSheetProps) {
   const [product, setProduct] = useState<Product | null>(null);
   const [preloadedNode, setPreloadedNode] = useState<EngineProductNode | null>(
@@ -127,18 +201,29 @@ export default function DigitalProductSheet({
       onClose={onClose}
       title={sheetTitle}
       placement="center"
-      panelClassName="bg-white text-slate-900 shadow-2xl"
+      panelClassName="shadow-2xl digital-sheet-enter"
+      panelStyle={sheetPanelStyle(theme)}
     >
-      <div className="p-5">
+      <MenuPreviewRegion id="productsheet">
+      <div className="p-5" style={{ fontFamily: theme.fontFamily }}>
         {loadingProduct || !product ? (
           <div className="flex min-h-[200px] items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+            <Loader2
+              className="digital-spin h-8 w-8 animate-spin"
+              style={{ color: theme.mutedTextColor }}
+            />
           </div>
         ) : (
           <>
-            <ProductHero product={product} />
+            <ProductHero
+              product={product}
+              theme={theme}
+              displayPrice={Number(product.price)}
+              promotionalPrice={product.promotionalPrice ?? null}
+            />
             <ProductComposerView
               productName={product.name}
+              basePrice={digitalBase}
               loading={composer.loading}
               blocked={composer.blocked}
               blockedReason={composer.blockedReason}
@@ -155,12 +240,14 @@ export default function DigitalProductSheet({
               onObservationChange={composer.setObservation}
               onConfirm={handleConfirm}
               onCancel={onClose}
-              confirmLabel="Adicionar ao carrinho"
+              confirmLabel={`Adicionar ao pedido · ${new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(digitalLineTotal)}`}
               maxQuantity={Math.max(1, product.stock)}
+              visualTone="digital"
             />
           </>
         )}
       </div>
+      </MenuPreviewRegion>
     </AppSheet>
   );
 }

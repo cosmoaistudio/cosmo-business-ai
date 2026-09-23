@@ -31,6 +31,8 @@ interface ComboCompositionModalProps {
   ) => Promise<ProductComboComponent[]>;
   preloadedNodes?: Record<string, EngineProductNode>;
   confirmLabel?: string;
+  /** Public Pedido Digital skin — does not change PDV default. */
+  visualTone?: "default" | "digital";
 }
 
 type UnitState = {
@@ -103,6 +105,7 @@ export default function ComboCompositionModal({
   componentsLoader,
   preloadedNodes,
   confirmLabel = "Adicionar ao carrinho",
+  visualTone = "default",
 }: ComboCompositionModalProps) {
   const isChoice = product.combo_selection_mode === "choice";
   const minChoices = product.combo_min_choices ?? 1;
@@ -422,6 +425,7 @@ export default function ComboCompositionModal({
           onCancel={() => setActiveKey(null)}
           confirmLabel="Salvar composição"
           maxQuantity={1}
+          visualTone={visualTone}
         />
       </AppModal>
     );

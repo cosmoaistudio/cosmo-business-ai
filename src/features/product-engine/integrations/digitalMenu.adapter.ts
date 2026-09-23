@@ -25,6 +25,18 @@ export interface DigitalMenuProduct {
   /** Only set when the products row exposes a promotional price column. */
   promotionalPrice?: number | null;
   featured?: boolean;
+  /** Channel visibility baked into catalog_snapshot (034). Default: all on. */
+  channels?: {
+    delivery: boolean;
+    pickup: boolean;
+    dine_in: boolean;
+  };
+  /** Per-channel sort order baked into catalog_snapshot (034). */
+  channelSort?: {
+    delivery: number;
+    pickup: number;
+    dine_in: number;
+  };
   comboSlots?: DigitalMenuComboSlot[];
   groups: Array<{
     id: string;
@@ -51,6 +63,8 @@ export type DigitalMenuProductExtras = {
   description?: string | null;
   promotionalPrice?: number | null;
   featured?: boolean;
+  channels?: DigitalMenuProduct["channels"];
+  channelSort?: DigitalMenuProduct["channelSort"];
   comboSlots?: DigitalMenuComboSlot[];
 };
 
@@ -94,6 +108,8 @@ export function toDigitalMenuProduct(
     description: extras.description ?? null,
     promotionalPrice: extras.promotionalPrice ?? null,
     featured: extras.featured ?? false,
+    channels: extras.channels,
+    channelSort: extras.channelSort,
     comboSlots: extras.comboSlots,
     groups: menuKind === "combo" ? [] : groups,
   };

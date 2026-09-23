@@ -145,4 +145,32 @@ describe("MenuCategoryTabs a11y", () => {
     fireEvent.keyDown(acai, { key: "ArrowRight" });
     expect(onSelect).toHaveBeenCalledWith("bebidas");
   });
+
+  it("points aria-controls at slug-safe section ids", () => {
+    render(
+      <MenuCategoryTabs
+        navigation="sections"
+        alwaysVisible
+        activeCategoryId="milk-shake"
+        theme={DEFAULT_MENU_THEME}
+        onSelect={vi.fn()}
+        categories={[
+          { id: "milk-shake", label: "Milk Shake", productCount: 2 },
+          { id: "monte-seu-acai", label: "Monte seu açaí", productCount: 1 },
+        ]}
+      />
+    );
+
+    expect(screen.getByRole("tab", { name: /Milk Shake/ })).toHaveAttribute(
+      "aria-controls",
+      "menu-category-milk-shake"
+    );
+    expect(screen.getByRole("tab", { name: /Monte seu açaí/ })).toHaveAttribute(
+      "aria-controls",
+      "menu-category-monte-seu-acai"
+    );
+    expect(
+      screen.getByRole("tab", { name: /Milk Shake/ }).getAttribute("aria-controls")
+    ).not.toContain(" ");
+  });
 });

@@ -1,12 +1,14 @@
 // Vitest transforms JSX with the classic runtime, so React must be in scope.
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import MenuNicheSelector from "@/features/digital-ordering/menu/admin/MenuNicheSelector";
 import MenuThemeEditor from "@/features/digital-ordering/menu/admin/MenuThemeEditor";
 import { listNiches } from "@/features/digital-ordering/menu/config/nicheConfig";
 import { resolveMenuTheme } from "@/features/digital-ordering/menu/theme/menuTheme";
 import { getNicheConfig } from "@/features/digital-ordering/menu/config/nicheConfig";
+import { resolveMenuCopy } from "@/features/digital-ordering/menu/utils/resolveMenuPresentation";
 import type { DigitalStoreSettings } from "@/features/digital-ordering/types/digitalStore.types";
 import { DEFAULT_DIGITAL_STORE_THEME } from "@/features/digital-ordering/types/digitalStore.types";
 
@@ -28,6 +30,8 @@ function storeSettings(
     theme: DEFAULT_DIGITAL_STORE_THEME,
     niche: "acai",
     menuTheme: { cardRadius: "xl" },
+    menuCopy: {},
+    menuFeatures: {},
     acceptsPickup: true,
     acceptsDelivery: true,
     acceptsDineIn: true,
@@ -43,16 +47,19 @@ function renderThemeEditor(
   settings: DigitalStoreSettings,
   onChange = vi.fn()
 ) {
+  const config = getNicheConfig(settings.niche);
   const theme = resolveMenuTheme(
     settings.theme,
-    getNicheConfig(settings.niche),
+    config,
     settings.menuTheme
   );
+  const copy = resolveMenuCopy(config, settings.menuCopy);
 
   render(
     <MenuThemeEditor
       settings={settings}
       resolvedTheme={theme}
+      resolvedCopy={copy}
       onChange={onChange}
     />
   );
@@ -106,9 +113,10 @@ describe("MenuThemeEditor", () => {
   it("keeps existing menu theme overrides when patching a token", () => {
     const { onChange } = renderThemeEditor(storeSettings());
 
-    fireEvent.change(screen.getByLabelText("Layout dos produtos"), {
-      target: { value: "list" },
+    const layout = screen.getByRole("radiogroup", {
+      name: "Layout dos produtos",
     });
+    fireEvent.click(within(layout).getByRole("radio", { name: "Lista" }));
 
     expect(onChange).toHaveBeenCalledWith({
       menuTheme: { cardRadius: "xl", productLayout: "list" },
@@ -120,9 +128,13 @@ describe("MenuThemeEditor", () => {
     renderThemeEditor(storeSettings({ menuTheme: {} }));
 
     if (nicheDefault) {
-      expect(screen.getByLabelText("Estilo do banner")).toHaveValue(
-        nicheDefault
-      );
+      const group = screen.getByRole("radiogroup", {
+        name: "Estilo do banner",
+      });
+      const active = within(group)
+        .getAllByRole("radio")
+        .find((el) => el.getAttribute("aria-checked") === "true");
+      expect(active?.textContent).toMatch(/Imagem|Gradiente|Minimalista/i);
     }
   });
 
@@ -130,14 +142,14 @@ describe("MenuThemeEditor", () => {
     const { onChange } = renderThemeEditor(
       storeSettings({ bannerMessage: "Frete grátis" })
     );
-    const field = screen.getByLabelText(
+    const fields = screen.getAllByLabelText(
       "Mensagem promocional do banner (opcional)"
     );
 
-    fireEvent.change(field, { target: { value: "Combo do dia" } });
+    fireEvent.change(fields[0], { target: { value: "Combo do dia" } });
     expect(onChange).toHaveBeenCalledWith({ bannerMessage: "Combo do dia" });
 
-    fireEvent.change(field, { target: { value: "" } });
+    fireEvent.change(fields[0], { target: { value: "" } });
     expect(onChange).toHaveBeenCalledWith({ bannerMessage: null });
   });
 
@@ -146,39 +158,90 @@ describe("MenuThemeEditor", () => {
       storeSettings({ menuTheme: { showProductImages: true } })
     );
 
-    fireEvent.click(screen.getByLabelText("Mostrar imagens dos produtos"));
+    fireEvent.click(screen.getByLabelText("Exibir imagens"));
 
     expect(onChange).toHaveBeenCalledWith({
       menuTheme: { showProductImages: false },
     });
   });
+
+  it("does not pretend the image toggle can enable a template that forbids images", () => {
+    const { onChange } = renderThemeEditor(
+      storeSettings({
+        niche: "servicos",
+        menuTemplateId: "services",
+        menuTheme: { showProductImages: true },
+        menuFeatures: { showProductImages: true },
+      })
+    );
+
+    const toggle = screen.getByLabelText("Exibir imagens");
+    expect(toggle).toBeDisabled();
+    expect(toggle).not.toBeChecked();
+    expect(screen.getByText("Este template não permite imagens.")).toBeTruthy();
+
+    fireEvent.click(toggle);
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("stores copy override and clears when matching niche default", () => {
+    const { onChange } = renderThemeEditor(storeSettings());
+    const field = screen.getByLabelText("Rótulo de personalização");
+
+    fireEvent.change(field, { target: { value: "Escolha os adicionais" } });
+    expect(onChange).toHaveBeenCalledWith({
+      menuCopy: { customizableLabel: "Escolha os adicionais" },
+    });
+  });
+
+  it("edits the store display name", () => {
+    const { onChange } = renderThemeEditor(storeSettings());
+
+    fireEvent.change(screen.getByLabelText("Nome da loja"), {
+      target: { value: "Cosmo Business" },
+    });
+
+    expect(onChange).toHaveBeenCalledWith({
+      organizationName: "Cosmo Business",
+    });
+  });
 });
 
 describe("MenuConfigurator", () => {
-  it("applies the niche starting palette when a niche is picked", async () => {
+  it("applies the template starting palette when a template is picked", async () => {
     const { default: MenuConfigurator } = await import(
       "@/features/digital-ordering/menu/admin/MenuConfigurator"
     );
-    const { appearanceFromNiche } = await import(
-      "@/features/digital-ordering/menu/config/nicheConfig"
+    const { appearanceFromTemplate } = await import(
+      "@/features/digital-ordering/menu/templates/resolveMenuTemplate"
     );
     const onChange = vi.fn();
 
     render(
-      <MenuConfigurator
-        organizationId="org-1"
-        settings={storeSettings({ niche: "acai" })}
-        onChange={onChange}
-      />
+      <MemoryRouter>
+        <MenuConfigurator
+          organizationId="org-1"
+          settings={storeSettings({ niche: "acai", menuTemplateId: "acai" })}
+          onChange={onChange}
+          isDirty={false}
+          onSave={vi.fn()}
+          onPublish={vi.fn()}
+          onDiscard={vi.fn()}
+        />
+      </MemoryRouter>
     );
 
-    fireEvent.click(screen.getByLabelText("Pizzaria"));
+    fireEvent.click(screen.getByRole("button", { name: "Template" }));
+    fireEvent.click(screen.getByRole("button", { name: /Usar template Sushi/i }));
 
-    const appearance = appearanceFromNiche("pizzaria");
+    const appearance = appearanceFromTemplate("sushi");
     expect(onChange).toHaveBeenCalledWith({
-      niche: "pizzaria",
+      menuTemplateId: appearance.templateId,
+      niche: appearance.niche,
       theme: appearance.theme,
       menuTheme: appearance.menuTheme,
+      menuCopy: appearance.menuCopy,
+      menuFeatures: appearance.menuFeatures,
     });
   });
 });

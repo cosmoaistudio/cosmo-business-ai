@@ -6,6 +6,12 @@ import type { AddCartItemInput, CartItem } from "@/features/pdv/types/cart";
 import type { Product } from "@/features/products/types/product";
 import type { EngineProductNode } from "@/features/product-engine/types/productEngine.types";
 import type { DigitalMenuProduct } from "@/features/product-engine/integrations/digitalMenu.adapter";
+import type { MenuTheme } from "../menu/types/digitalMenu.types";
+import {
+  DEFAULT_MENU_THEME,
+  menuThemeStyle,
+  radiusToCss,
+} from "../menu/theme/menuTheme";
 import { fetchPublicComboDefinition } from "../repository/publicCombo.repository";
 import { resolveDigitalMenuBasePrice } from "@/features/products/utils/productDigitalPromo";
 
@@ -16,6 +22,7 @@ interface DigitalComboSheetProps {
   editingItem?: CartItem | null;
   onClose: () => void;
   onConfirm: (input: AddCartItemInput) => void;
+  theme?: MenuTheme;
 }
 
 export default function DigitalComboSheet({
@@ -25,6 +32,7 @@ export default function DigitalComboSheet({
   editingItem,
   onClose,
   onConfirm,
+  theme = DEFAULT_MENU_THEME,
 }: DigitalComboSheetProps) {
   const [product, setProduct] = useState<Product | null>(null);
   const [preloadedNodes, setPreloadedNodes] = useState<
@@ -85,9 +93,27 @@ export default function DigitalComboSheet({
 
   if (loading || !product) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-        <div className="rounded-2xl bg-white px-6 py-5 text-slate-600 shadow-xl">
-          <Loader2 className="mx-auto mb-2 h-6 w-6 animate-spin" />
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+      >
+        <div
+          className="digital-sheet-enter border px-6 py-5 shadow-xl"
+          style={{
+            ...menuThemeStyle(theme),
+            backgroundColor: theme.backgroundColor,
+            color: theme.textColor,
+            borderColor: theme.borderColor,
+            borderRadius: radiusToCss(theme.cardRadius),
+            fontFamily: theme.fontFamily,
+          }}
+        >
+          <Loader2
+            className="digital-spin mx-auto mb-2 h-6 w-6 animate-spin"
+            style={{ color: theme.primaryColor }}
+          />
           Carregando combo…
         </div>
       </div>
@@ -106,22 +132,25 @@ export default function DigitalComboSheet({
   };
 
   return (
-    <ComboCompositionModal
-      key={`${product.id}:${definitionKey}:${editingItem?.id ?? "new"}`}
-      product={digitalProduct}
-      editingItem={editingItem}
-      componentsLoader={componentsLoader}
-      preloadedNodes={preloadedNodes}
-      confirmLabel="Adicionar ao pedido"
-      onClose={onClose}
-      onConfirm={(input) => {
-        const paidAddons = Math.max(0, input.unitPrice - digitalBase);
-        onConfirm({
-          ...input,
-          product,
-          unitPrice: digitalBase + paidAddons,
-        });
-      }}
-    />
+    <div style={menuThemeStyle(theme)} data-digital-combo="true">
+      <ComboCompositionModal
+        key={`${product.id}:${definitionKey}:${editingItem?.id ?? "new"}`}
+        product={digitalProduct}
+        editingItem={editingItem}
+        componentsLoader={componentsLoader}
+        preloadedNodes={preloadedNodes}
+        confirmLabel="Adicionar ao pedido"
+        visualTone="digital"
+        onClose={onClose}
+        onConfirm={(input) => {
+          const paidAddons = Math.max(0, input.unitPrice - digitalBase);
+          onConfirm({
+            ...input,
+            product,
+            unitPrice: digitalBase + paidAddons,
+          });
+        }}
+      />
+    </div>
   );
 }

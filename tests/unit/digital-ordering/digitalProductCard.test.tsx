@@ -226,6 +226,21 @@ describe("DigitalMenuGrid layout", () => {
       2
     );
   });
+
+  it("announces an empty search with a live status region", () => {
+    render(
+      <DigitalMenuGrid
+        products={[]}
+        loading={false}
+        emptyMessage="Nada encontrado. Tente outro termo."
+        onSelectProduct={vi.fn()}
+      />
+    );
+
+    const status = screen.getByRole("status");
+    expect(status).toHaveTextContent("Nada encontrado. Tente outro termo.");
+    expect(status).toHaveAttribute("aria-live", "polite");
+  });
 });
 
 describe("presentation precedence and catalog modes", () => {
@@ -283,5 +298,80 @@ describe("presentation precedence and catalog modes", () => {
       filtered.container.querySelector("[data-catalog-navigation='filter']")
     ).toBeTruthy();
     expect(filtered.container.querySelector("[data-menu-category-aside]")).toBeTruthy();
+  });
+
+  it("uses slug-safe category anchors for labels with spaces and accents", () => {
+    const items = [
+      product({ id: "a", name: "Milk Shake de morango", categoryName: "Milk Shake" }),
+      product({ id: "b", name: "Barca especial", categoryName: "Monte seu açaí" }),
+    ];
+
+    const { container } = render(
+      <CosmoDigitalMenu
+        products={items}
+        loading={false}
+        store={store({ menuFeatures: { catalogNavigation: "sections" } })}
+        manageSeo={false}
+        onSelectProduct={vi.fn()}
+      />
+    );
+
+    expect(container.querySelector("#menu-category-milk-shake")).toBeTruthy();
+    expect(container.querySelector("#menu-category-monte-seu-acai")).toBeTruthy();
+    expect(container.querySelector("#menu-category-milk shake")).toBeNull();
+    expect(
+      screen.getByRole("tab", { name: /Milk Shake/ }).getAttribute("aria-controls")
+    ).toBe("menu-category-milk-shake");
+  });
+
+  it("keeps filter mode free of section anchors and announces empty search", () => {
+    const items = [
+      product({
+        id: "a",
+        name: "Açaí 500ml",
+        categoryName: "Açaí",
+        featured: true,
+      }),
+      product({ id: "b", name: "Água", categoryName: "Bebidas" }),
+    ];
+
+    const { container, rerender } = render(
+      <CosmoDigitalMenu
+        products={items}
+        loading={false}
+        store={store({
+          menuTemplateId: "generic",
+          niche: "generic",
+          menuFeatures: { catalogNavigation: "filter", showHighlights: true },
+        })}
+        manageSeo={false}
+        onSelectProduct={vi.fn()}
+      />
+    );
+
+    expect(container.querySelector("[data-catalog-navigation='filter']")).toBeTruthy();
+    expect(container.querySelector("#menu-featured")).toBeNull();
+    expect(container.querySelector("#menu-category-acai")).toBeNull();
+
+    rerender(
+      <CosmoDigitalMenu
+        products={items}
+        loading={false}
+        store={store({
+          menuTemplateId: "generic",
+          niche: "generic",
+          menuFeatures: { catalogNavigation: "filter" },
+        })}
+        manageSeo={false}
+        onSelectProduct={vi.fn()}
+      />
+    );
+
+    fireEvent.change(screen.getByLabelText(/buscar/i), {
+      target: { value: "xyz-nao-existe" },
+    });
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Nada encontrado. Tente outro termo."
+    );
   });
 });

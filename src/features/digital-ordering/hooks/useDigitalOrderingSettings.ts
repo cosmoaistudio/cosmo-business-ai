@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/features/auth";
 import type {
   DigitalQrCodeEntry,
@@ -21,6 +21,7 @@ export function useDigitalOrderingSettings() {
     null
   );
   const [publishing, setPublishing] = useState(false);
+  const publishingLockRef = useRef(false);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -126,20 +127,25 @@ export function useDigitalOrderingSettings() {
     [organizationId, settings, tables]
   );
 
-  const publishCatalog = useCallback(async () => {
+  const publishCatalog = useCallback(async (expectedSlug?: string) => {
     if (!organizationId || !settings || !paymentSettings) {
       throw new Error(
         "Configurações ainda não estão prontas para publicar. Aguarde o carregamento."
       );
     }
+    if (publishingLockRef.current) {
+      throw new Error("Publicação já em andamento.");
+    }
 
+    const slug = expectedSlug ?? settings.slug;
+
+    publishingLockRef.current = true;
     setPublishing(true);
     try {
-      // Persist onto the store that matches settings.slug (public /menu/:slug).
-      // Do NOT follow with saveSettings() without the snapshot.
+      // Persist onto the store that matches the slug just saved.
       const persisted = await digitalStoreService.publishCatalog(
         organizationId,
-        settings.slug
+        slug
       );
       setSettings((current) =>
         current
@@ -152,6 +158,7 @@ export function useDigitalOrderingSettings() {
       );
       return persisted.products;
     } finally {
+      publishingLockRef.current = false;
       setPublishing(false);
     }
   }, [organizationId, settings, paymentSettings]);

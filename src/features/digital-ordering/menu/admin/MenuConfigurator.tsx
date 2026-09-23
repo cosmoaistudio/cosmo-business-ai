@@ -1,70 +1,79 @@
 import type { DigitalStoreSettings } from "../../types/digitalStore.types";
 import { useDigitalMenu } from "../../hooks/useDigitalMenu";
-import { appearanceFromNiche } from "../config/nicheConfig";
 import { useMenuTheme } from "../hooks/useMenuTheme";
-import MenuMobilePreview from "./MenuMobilePreview";
-import MenuNicheSelector from "./MenuNicheSelector";
-import MenuThemeEditor from "./MenuThemeEditor";
+import { resolveActiveTemplateId } from "../templates/resolveMenuTemplate";
+import MenuEditorShell from "./editor/MenuEditorShell";
 
 interface MenuConfiguratorProps {
   organizationId: string | null;
   settings: DigitalStoreSettings;
+  savedSettings?: DigitalStoreSettings;
   onChange: (patch: Partial<DigitalStoreSettings>) => void;
+  isDirty: boolean;
+  saving?: boolean;
+  publishing?: boolean;
+  saved?: boolean;
+  published?: boolean;
+  saveError?: string | null;
+  publishError?: string | null;
+  offline?: boolean;
+  onSave: () => void;
+  onPublish: () => void;
+  onDiscard: () => void;
 }
 
 /**
- * Admin surface for the Cosmo Digital Menu: niche, visual theme and a live
- * phone preview side by side.
+ * Admin surface: commercial visual editor + live interactive preview.
  */
 export default function MenuConfigurator({
   organizationId,
   settings,
+  savedSettings,
   onChange,
+  isDirty,
+  saving = false,
+  publishing = false,
+  saved = false,
+  published = false,
+  saveError = null,
+  publishError = null,
+  offline = false,
+  onSave,
+  onPublish,
+  onDiscard,
 }: MenuConfiguratorProps) {
   const { products, loading } = useDigitalMenu(organizationId);
-  const { config, theme } = useMenuTheme(settings);
+  const { theme, copy, features, template } = useMenuTheme(settings);
+
+  const activeTemplateId = resolveActiveTemplateId({
+    menuTemplateId: settings.menuTemplateId,
+    niche: settings.niche,
+  });
 
   return (
-    <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_auto]">
-      <div className="space-y-8">
-        <MenuNicheSelector
-          value={settings.niche}
-          onChange={(niche) => {
-            const appearance = appearanceFromNiche(niche);
-            onChange({
-              niche: appearance.niche,
-              theme: appearance.theme,
-              menuTheme: appearance.menuTheme,
-            });
-          }}
-        />
-
-        <div className="border-t border-slate-100 pt-6">
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Aparência do cardápio
-            </h2>
-            <p className="text-sm text-slate-500">
-              Partindo do padrão de {config.label}. Suas alterações têm
-              prioridade sobre o padrão do nicho.
-            </p>
-          </div>
-
-          <MenuThemeEditor
-            settings={settings}
-            resolvedTheme={theme}
-            onChange={onChange}
-          />
-        </div>
-      </div>
-
-      <div className="xl:sticky xl:top-6 xl:self-start">
-        <MenuMobilePreview
-          settings={settings}
-          products={products}
-          loading={loading}
-        />
-      </div>
-    </div>
+    <MenuEditorShell
+      settings={settings}
+      savedSettings={savedSettings}
+      organizationId={organizationId}
+      products={products}
+      loading={loading}
+      resolvedTheme={theme}
+      resolvedCopy={copy}
+      resolvedFeatures={features}
+      activeTemplateId={activeTemplateId}
+      templateName={template.name}
+      isDirty={isDirty}
+      saving={saving}
+      publishing={publishing}
+      saved={saved}
+      published={published}
+      saveError={saveError}
+      publishError={publishError}
+      offline={offline}
+      onChange={onChange}
+      onSave={onSave}
+      onPublish={onPublish}
+      onDiscard={onDiscard}
+    />
   );
 }

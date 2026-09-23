@@ -8,15 +8,36 @@ export const FEATURED_SECTION_ANCHOR_ID = "menu-featured";
  */
 export const FEATURED_CATEGORY_FALLBACK_ID = "__featured_category__";
 
+/**
+ * Safe fragment for HTML id / aria-controls. Spaces, accents and punctuation
+ * become hyphens so "Milk Shake" never yields `menu-category-milk shake`.
+ */
+export function slugifyCategorySectionId(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export function sanitizeCategorySectionId(categoryId: string): string {
-  return categoryId === FEATURED_SECTION_ID
-    ? FEATURED_CATEGORY_FALLBACK_ID
-    : categoryId;
+  if (
+    categoryId === FEATURED_CATEGORY_FALLBACK_ID ||
+    categoryId.startsWith("__")
+  ) {
+    return categoryId;
+  }
+  if (categoryId === FEATURED_SECTION_ID) return FEATURED_CATEGORY_FALLBACK_ID;
+
+  const slug = slugifyCategorySectionId(categoryId);
+  if (slug === FEATURED_SECTION_ID) return FEATURED_CATEGORY_FALLBACK_ID;
+  return slug.length > 0 ? slug : categoryId;
 }
 
 export function menuSectionAnchorId(categoryId: string): string {
   if (categoryId === FEATURED_SECTION_ID) return FEATURED_SECTION_ANCHOR_ID;
-  return `${MENU_SECTION_ID_PREFIX}${categoryId}`;
+  return `${MENU_SECTION_ID_PREFIX}${sanitizeCategorySectionId(categoryId)}`;
 }
 
 export function isMenuScrollElement(

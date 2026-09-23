@@ -91,6 +91,14 @@ describe("menuSectionNav helpers", () => {
     expect(sanitizeCategorySectionId("acai")).toBe("acai");
   });
 
+  it("slugifies unsafe category labels before building anchors", () => {
+    expect(sanitizeCategorySectionId("Milk Shake")).toBe("milk-shake");
+    expect(sanitizeCategorySectionId("Monte seu açaí")).toBe("monte-seu-acai");
+    expect(menuSectionAnchorId("Milk Shake")).toBe("menu-category-milk-shake");
+    expect(menuSectionAnchorId("milk shake")).toBe("menu-category-milk-shake");
+    expect(menuSectionAnchorId("milk-shake")).toBe("menu-category-milk-shake");
+  });
+
   it("keeps a stable featured section id", () => {
     expect(FEATURED_SECTION_ID).toBe("featured");
     expect(FEATURED_SECTION_ANCHOR_ID).toBe("menu-featured");

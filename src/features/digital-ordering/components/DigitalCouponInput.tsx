@@ -1,63 +1,65 @@
-import { useState } from "react";
 import { Tag } from "lucide-react";
 import { toast } from "sonner";
+import type { MenuTheme } from "../menu/types/digitalMenu.types";
+import {
+  DEFAULT_MENU_THEME,
+  radiusToCss,
+  surfaceStyle,
+} from "../menu/theme/menuTheme";
 
 interface DigitalCouponInputProps {
   onApply: (code: string) => { success: boolean; error?: string };
   onRemove: () => void;
   activeCode?: string | null;
+  theme?: MenuTheme;
 }
 
+/**
+ * Campo preparado para cupons futuros.
+ * Enquanto não houver validação server-side, não aplica desconto nem
+ * apresenta cupom "ativo" — evita falsa expectativa no checkout público.
+ */
 export default function DigitalCouponInput({
   onApply,
-  onRemove,
-  activeCode,
+  theme = DEFAULT_MENU_THEME,
 }: DigitalCouponInputProps) {
-  const [code, setCode] = useState("");
-
   const handleApply = () => {
-    const result = onApply(code);
-    if (!result.success) {
-      toast.error(result.error ?? "Cupom inválido.");
-      return;
-    }
-    toast.success("Cupom aplicado.");
-    setCode("");
+    const result = onApply("");
+    toast.error(
+      result.error ?? "Cupons promocionais estarão disponíveis em breve."
+    );
   };
 
-  if (activeCode) {
-    return (
-      <div className="flex items-center justify-between rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm">
-        <span className="flex items-center gap-2 text-emerald-200">
-          <Tag className="h-4 w-4" />
-          Cupom {activeCode} aplicado
-        </span>
+  return (
+    <div className="space-y-2">
+      <div className="flex gap-2 opacity-60">
+        <div
+          className="flex flex-1 items-center gap-2 border px-4 py-3 text-sm"
+          style={{
+            ...surfaceStyle(theme),
+            color: theme.mutedTextColor,
+          }}
+        >
+          <Tag className="h-4 w-4 shrink-0" aria-hidden />
+          <span>Cupom promocional</span>
+        </div>
         <button
           type="button"
-          onClick={onRemove}
-          className="text-emerald-100 underline"
+          onClick={handleApply}
+          className="digital-focus-ring border px-4 py-3 text-sm font-medium"
+          style={{
+            borderRadius: radiusToCss(theme.buttonRadius),
+            borderColor: theme.borderColor,
+            backgroundColor: theme.surfaceColor,
+            color: theme.mutedTextColor,
+          }}
         >
-          Remover
+          Em breve
         </button>
       </div>
-    );
-  }
-
-  return (
-    <div className="flex gap-2">
-      <input
-        value={code}
-        onChange={(event) => setCode(event.target.value.toUpperCase())}
-        placeholder="Cupom promocional"
-        className="flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none focus:border-white/30"
-      />
-      <button
-        type="button"
-        onClick={handleApply}
-        className="rounded-2xl bg-white/10 px-4 py-3 text-sm font-medium"
-      >
-        Aplicar
-      </button>
+      <p className="text-xs" style={{ color: theme.mutedTextColor }}>
+        Cupons serão validados pelo servidor em uma próxima atualização.
+      </p>
     </div>
   );
 }

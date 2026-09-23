@@ -199,6 +199,27 @@ describe("buildMenuCatalog sections mode", () => {
     expect(result.isEmpty).toBe(true);
     expect(result.sections).toEqual([]);
   });
+
+  it("merges labels that slug to the same safe id", () => {
+    const result = buildMenuCatalog(
+      [
+        product({ id: "a", name: "Shake 1", categoryName: "Milk Shake" }),
+        product({ id: "b", name: "Shake 2", categoryName: "milk-shake" }),
+        product({ id: "c", name: "Shake 3", categoryName: "Milk  Shake" }),
+      ],
+      sectionsConfig(),
+      { search: "", categoryId: ALL_CATEGORY_ID }
+    );
+
+    const milk = result.sections.filter(
+      (section) => section.categoryId === "milk-shake"
+    );
+    expect(milk).toHaveLength(1);
+    expect(milk[0]?.products).toHaveLength(3);
+    expect(result.sections.every((section) => !section.categoryId.includes(" "))).toBe(
+      true
+    );
+  });
 });
 
 describe("buildMenuSections", () => {
