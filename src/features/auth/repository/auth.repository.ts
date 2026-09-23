@@ -50,6 +50,9 @@ export async function signInWithGoogle(options?: { redirectTo?: string }) {
     options: {
       redirectTo,
       skipBrowserRedirect: desktop,
+      queryParams: {
+        prompt: "select_account",
+      },
     },
   });
 }
