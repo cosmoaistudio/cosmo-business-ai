@@ -65,6 +65,7 @@ const HelpPage = lazy(() => import("../pages/Help"));
 const DiagnosticsPage = lazy(() => import("../pages/Diagnostics"));
 const SettingsPage = lazy(() => import("../pages/Settings"));
 const HardwarePage = lazy(() => import("../pages/Hardware"));
+const DownloadPage = lazy(() => import("../pages/Download"));
 
 function RouteFallback({ compact = false }: { compact?: boolean }) {
   if (compact) {
@@ -451,6 +452,14 @@ export default function AppRoutes() {
           }
         />
 
+        <Route
+          path="/download"
+          element={
+            <LazyPage compact>
+              <DownloadPage />
+            </LazyPage>
+          }
+        />
         <Route
           path="/menu/:slug"
           element={
