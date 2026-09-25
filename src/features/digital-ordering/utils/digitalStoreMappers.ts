@@ -2,6 +2,8 @@ import type { DigitalMenuProduct } from "@/features/product-engine/integrations/
 import type { DigitalPaymentSettings } from "../types/digitalPayment.types";
 import { DEFAULT_DIGITAL_PAYMENT_SETTINGS } from "../types/digitalPayment.types";
 import type {
+  DigitalMenuCopyOverrides,
+  DigitalMenuFeatureOverrides,
   DigitalQrCodeEntry,
   DigitalStoreSettings,
   DigitalStoreTable,
@@ -14,6 +16,17 @@ import {
 import { normalizeStoreSlug, slugFromOrganizationName } from "./storeSlug";
 import { resolveNiche } from "../menu/config/nicheConfig";
 import { parseMenuThemeOverrides } from "../menu/theme/menuTheme";
+import {
+  sanitizeMenuCopyOverrides,
+  sanitizeMenuFeatureOverrides,
+} from "../menu/utils/resolveMenuPresentation";
+import { resolveMenuTemplateId } from "../menu/templates/menuTemplateRegistry";
+import type {
+  DigitalMenuNiche,
+  NicheCopy,
+  NicheFeatures,
+} from "../menu/types/digitalMenu.types";
+import type { MenuTemplateId } from "../menu/types/menuTemplate.types";
 
 interface DigitalStoreRow {
   id: string;
@@ -69,7 +82,24 @@ function parseTheme(raw: Record<string, unknown> | null | undefined): DigitalSto
   };
 }
 
-function parseStoreSettings(raw: Record<string, unknown> | null | undefined) {
+interface ParsedStoreSettings {
+  acceptsPickup: boolean;
+  acceptsDelivery: boolean;
+  acceptsDineIn: boolean;
+  minimumOrder: number;
+  deliveryFee: number;
+  averagePrepMinutes: number;
+  niche: DigitalMenuNiche;
+  bannerMessage: string | null;
+  menuCopy: DigitalMenuCopyOverrides;
+  menuFeatures: DigitalMenuFeatureOverrides;
+  menuTemplateId: MenuTemplateId | null;
+  payment: DigitalPaymentSettings;
+}
+
+function parseStoreSettings(
+  raw: Record<string, unknown> | null | undefined
+): ParsedStoreSettings {
   return {
     acceptsPickup: raw?.acceptsPickup !== false,
     acceptsDelivery: raw?.acceptsDelivery !== false,
@@ -82,7 +112,19 @@ function parseStoreSettings(raw: Record<string, unknown> | null | undefined) {
       typeof raw?.bannerMessage === "string" && raw.bannerMessage.trim().length > 0
         ? raw.bannerMessage.trim()
         : null,
-    payment: (raw?.payment as DigitalPaymentSettings | undefined) ?? DEFAULT_DIGITAL_PAYMENT_SETTINGS,
+    menuCopy: sanitizeMenuCopyOverrides(
+      raw?.menuCopy as Partial<NicheCopy> | undefined
+    ),
+    menuFeatures: sanitizeMenuFeatureOverrides(
+      raw?.menuFeatures as Partial<NicheFeatures> | undefined
+    ),
+    menuTemplateId:
+      raw?.menuTemplateId != null
+        ? resolveMenuTemplateId(raw.menuTemplateId)
+        : null,
+    payment:
+      (raw?.payment as DigitalPaymentSettings | undefined) ??
+      DEFAULT_DIGITAL_PAYMENT_SETTINGS,
   };
 }
 
@@ -103,6 +145,9 @@ export function mapRowToSettings(
     theme: parseTheme(row.theme),
     niche: parsed.niche,
     menuTheme: parseMenuThemeOverrides(row.theme),
+    menuCopy: parsed.menuCopy,
+    menuFeatures: parsed.menuFeatures,
+    menuTemplateId: parsed.menuTemplateId,
     acceptsPickup: parsed.acceptsPickup,
     acceptsDelivery: parsed.acceptsDelivery,
     acceptsDineIn: parsed.acceptsDineIn,
@@ -127,6 +172,9 @@ export function mapPublicRpcToSettings(data: PublicStoreRpc): DigitalStoreSettin
     theme: parseTheme(data.theme),
     niche: parsed.niche,
     menuTheme: parseMenuThemeOverrides(data.theme),
+    menuCopy: parsed.menuCopy,
+    menuFeatures: parsed.menuFeatures,
+    menuTemplateId: parsed.menuTemplateId,
     acceptsPickup: data.accepts_pickup ?? parsed.acceptsPickup,
     acceptsDelivery: data.accepts_delivery ?? parsed.acceptsDelivery,
     acceptsDineIn: data.accepts_dine_in ?? parsed.acceptsDineIn,
@@ -191,10 +239,17 @@ export function settingsToUpsertPayload(
       averagePrepMinutes: settings.averagePrepMinutes,
       niche: resolveNiche(settings.niche),
       bannerMessage: settings.bannerMessage,
+      menuCopy: sanitizeMenuCopyOverrides(settings.menuCopy),
+      menuFeatures: sanitizeMenuFeatureOverrides(settings.menuFeatures),
+      menuTemplateId: settings.menuTemplateId
+        ? resolveMenuTemplateId(settings.menuTemplateId)
+        : null,
       payment: paymentSettings,
     },
     qr_codes: qrCodes,
-    published_at: settings.publishedAt,
+    // Omit when unpublished so SAVE cannot invent published_at (P1).
+    // defaultToNull:false then preserves the existing DB value.
+    ...(settings.publishedAt ? { published_at: settings.publishedAt } : {}),
     updated_at: new Date().toISOString(),
   };
 }

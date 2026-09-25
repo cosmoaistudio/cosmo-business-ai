@@ -16,6 +16,11 @@ export interface DigitalCoupon {
   label: string;
 }
 
+/** Discriminated union: coupon/discount exist only when valid === true. */
+export type CouponValidationResult =
+  | { valid: true; coupon: DigitalCoupon; discount: number }
+  | { valid: false; error: string };
+
 /** Endereço estruturado persistido em sales.delivery_address (033/034). */
 export interface DigitalDeliveryAddress {
   cep?: string;

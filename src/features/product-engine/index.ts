@@ -27,6 +27,10 @@ export {
   type ComposerInitialState,
 } from "./hooks/useProductComposer";
 export { default as ProductComposerView } from "./components/ProductComposerView";
+export type {
+  ProductComposerViewProps,
+  ProductComposerVisualTone,
+} from "./components/ProductComposerView";
 
 export * from "./integrations";
 export * from "./repository/productEngine.repository";

@@ -11,6 +11,7 @@ import {
   updateLocalDigitalOrderStatus,
 } from "../repository/digitalOrdering.repository";
 import type {
+  CouponValidationResult,
   DigitalCheckoutInput,
   DigitalCoupon,
   DigitalOrderContext,
@@ -89,12 +90,12 @@ export const digitalOrderingService = {
    * Cupons públicos desativados até validação server-side.
    * Mantém a API para a UI futura; nunca aplica desconto no checkout.
    */
-  validateCoupon(_code: string, _subtotal: number) {
+  validateCoupon(_code: string, _subtotal: number): CouponValidationResult {
     void _code;
     void _subtotal;
     void DEMO_COUPONS;
     return {
-      valid: false as const,
+      valid: false,
       error: "Cupons promocionais estarão disponíveis em breve.",
     };
   },

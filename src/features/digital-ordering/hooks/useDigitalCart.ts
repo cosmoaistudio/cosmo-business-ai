@@ -244,19 +244,19 @@ export function useDigitalCart(deliveryFee = 0) {
     return items.find((item) => item.id === editingItemId) ?? null;
   }, [editingItemId, items]);
 
-  const applyCoupon = useCallback(
-    (code: string) => {
-      const result = digitalOrderingService.validateCoupon(code, summary.subtotal);
-      if (!result.valid) {
-        return { success: false as const, error: result.error };
-      }
+  const applyCoupon = useCallback((code: string) => {
+    const result = digitalOrderingService.validateCoupon(code, summary.subtotal);
+    if (!result.valid) {
+      return {
+        success: false as const,
+        error: result.error,
+      };
+    }
 
-      setCoupon(result.coupon);
-      setDiscount(result.discount);
-      return { success: true as const, coupon: result.coupon };
-    },
-    [summary.subtotal]
-  );
+    setCoupon(result.coupon);
+    setDiscount(result.discount);
+    return { success: true as const, coupon: result.coupon };
+  }, [summary.subtotal]);
 
   const removeCoupon = useCallback(() => {
     setCoupon(null);
